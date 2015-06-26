@@ -2,6 +2,7 @@
 
 namespace nemmo\attachments\controllers;
 
+use Yii;
 use nemmo\attachments\models\File;
 use nemmo\attachments\models\UploadForm;
 use nemmo\attachments\ModuleTrait;
@@ -9,13 +10,36 @@ use yii\helpers\FileHelper;
 use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\UploadedFile;
+use yii\filters\AccessControl;
 
 class FileController extends Controller
 {
     use ModuleTrait;
+    
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['download', 'delete'],
+                'rules' => [
+                    [
+                        'actions' => ['download', 'delete'],
+                        'allow' => true,
+                        'matchCallback' => function ($rule, $action){
+                            return $this->checkAccess();
+                        }
+                    ],
+                ],
+            ],
+        ];
+    }
 
     public function actionUpload()
     {
+        $getData = Yii::$app->request->get();
+        $attribute = $getData['attribute'];
+        
         $model = new UploadForm();
         $model->file = UploadedFile::getInstances($model, 'file');
 
@@ -27,14 +51,15 @@ class FileController extends Controller
             $result['uploadedFiles'] = [];
             if (is_array($model->file)) {
                 foreach ($model->file as $file) {
-                    $path = $this->getModule()->getUserDirPath() . DIRECTORY_SEPARATOR . $file->name;
+                    $path = $this->getModule()->getUserDirPath($attribute) . DIRECTORY_SEPARATOR . $file->name;
                     $file->saveAs($path);
                     $result['uploadedFiles'][] = $file->name;
                 }
             } else {
-                $path = $this->getModule()->getUserDirPath() . DIRECTORY_SEPARATOR . $model->file->name;
+                $path = $this->getModule()->getUserDirPath($attribute) . DIRECTORY_SEPARATOR . $model->file->name;
                 $model->file->saveAs($path);
             }
+            
             return json_encode($result);
         } else {
             return json_encode([
@@ -84,4 +109,30 @@ class FileController extends Controller
             return $this->redirect(Url::previous());
         }
     }
+    
+    protected function checkAccess() 
+    {
+        
+        $access = true;
+        
+        // ACL filter
+        $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
+        
+        // check access
+        $file = File::findOne(['id' => $id]);
+        $modelClass = '\app\models\\' . $file->model;
+        $model = new $modelClass();
+        $behaviours = $model->behaviors();
+        $fileBehaviour = $behaviours['fileBehavior'];
+        $permission = $fileBehaviour['permissions'][$file->attribute];
+        if(!empty($permission)) {
+            if(!Yii::$app->user->can($permission)) {
+                $access = false;
+            }
+        }
+        
+        return $access;
+        
+    }
+    
 }

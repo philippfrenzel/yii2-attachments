@@ -84,11 +84,11 @@ class Module extends \yii\base\Module
         return $path;
     }
 
-    public function getUserDirPath()
+    public function getUserDirPath($suffix = '')
     {
         \Yii::$app->session->open();
 
-        $userDirPath = $this->getTempPath() . DIRECTORY_SEPARATOR . \Yii::$app->session->id;
+        $userDirPath = $this->getTempPath() . DIRECTORY_SEPARATOR . \Yii::$app->session->id . $suffix;
         FileHelper::createDirectory($userDirPath);
 
         \Yii::$app->session->close();
@@ -108,11 +108,12 @@ class Module extends \yii\base\Module
     /**
      * @param $filePath string
      * @param $owner
+     * @param $attribute
      * @return bool|File
      * @throws \Exception
      * @throws \yii\base\InvalidConfigException
      */
-    public function attachFile($filePath, $owner)
+    public function attachFile($filePath, $owner, $attribute='file')
     {
         if (!$owner->id) {
             throw new \Exception('Owner must have id when you attach file');
@@ -144,6 +145,7 @@ class Module extends \yii\base\Module
         $file->size = filesize($filePath);
         $file->type = $fileType;
         $file->mime = FileHelper::getMimeType($filePath);
+        $file->attribute = $attribute;
 
         if ($file->save()) {
             unlink($filePath);
