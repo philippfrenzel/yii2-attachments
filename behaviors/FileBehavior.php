@@ -24,6 +24,8 @@ class FileBehavior extends Behavior
     var $attributes = ['file'];
     
     var $permissions = [];
+    
+    var $rules = [];
 
     public function events()
     {
@@ -65,9 +67,6 @@ class FileBehavior extends Behavior
             }
         }
         rmdir($userTempDir);
-        
-//        $debug = print_r($debugArr, true);
-//        file_put_contents('/tmp/files.txt', $debug);
         
     }
 

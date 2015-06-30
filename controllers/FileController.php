@@ -112,26 +112,36 @@ class FileController extends Controller
     
     protected function checkAccess() 
     {
-        
-        $access = true;
-        
-        // ACL filter
+
+        // file
         $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
-        
-        // check access
         $file = File::findOne(['id' => $id]);
+        
+        // preparations
         $modelClass = '\app\models\\' . $file->model;
         $model = new $modelClass();
         $behaviours = $model->behaviors();
         $fileBehaviour = $behaviours['fileBehavior'];
+        
+        // ACL filter - model
+        $rules = $fileBehaviour['rules'];
+        if(!empty($rules)) {
+          foreach($rules AS $rule) {
+              if( !$model->$rule($file->itemId) ) {
+                  return false;
+              }
+          }
+        }
+        
+        // ACL filter - file
         $permission = $fileBehaviour['permissions'][$file->attribute];
         if(!empty($permission)) {
             if(!Yii::$app->user->can($permission)) {
-                $access = false;
+                return false;
             }
         }
         
-        return $access;
+        return true;
         
     }
     
