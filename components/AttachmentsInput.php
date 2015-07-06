@@ -44,7 +44,8 @@ class AttachmentsInput extends Widget
             'uploadUrl' => Url::toRoute(['/attachments/file/upload', 'attribute'=>$this->attribute]),
             'initialPreview' => $this->model->isNewRecord ? [] : $this->model->getInitialPreviewByAttributeName($this->attribute),
             'initialPreviewConfig' => $this->model->isNewRecord ? [] : $this->model->getInitialPreviewConfigByAttributeName($this->attribute),
-            'uploadAsync' => false
+            'uploadAsync' => false,
+            'showUpload' => false
         ]);
 
         $this->options = array_replace($this->options, [
@@ -63,23 +64,26 @@ form{$this->attribute}.on('beforeSubmit', function(event) { // form submit event
     console.log('submit');
     if (!filesUploaded{$this->attribute} && filesToUpload{$this->attribute}) {
         console.log('upload');
-        $('#{{$this->id}}').fileinput('upload').fileinput('lock');
-
+        $('#{$this->id}').fileinput('upload').fileinput('lock');
         return false;
     }
 });
 
 fileInput{$this->attribute}.on('filebatchpreupload', function(event, data, previewId, index) {
-    uploadButtonClicked{$this->attribute} = true;
+    console.log('upload button clicked');
+    //uploadButtonClicked{$this->attribute} = true; // we need to re-enable this if we want to use the upload button
 });
 
 
 fileInput{$this->attribute}.on('filebatchuploadsuccess', function(event, data, previewId, index) {
+    console.log('upload completed');
     filesUploaded{$this->attribute} = true;
-    $('#{{$this->id}}').fileinput('unlock');
+    $('#{$this->id}').fileinput('unlock');
     if (!uploadButtonClicked{$this->attribute}) {
+        console.log('not clicked');
         form{$this->attribute}.submit();
     } else {
+        console.log('clicked');
         uploadButtonClicked{$this->attribute} = false;
     }
 });
