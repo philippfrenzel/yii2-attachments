@@ -23,6 +23,8 @@ class FileModule extends Module
 
     public $rules = [];
 
+    public $tableName = 'file';
+
     public function init()
     {
         parent::init();

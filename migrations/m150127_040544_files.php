@@ -5,10 +5,13 @@ use yii\db\Schema;
 
 class m150127_040544_files extends Migration
 {
+    use \file\FileModuleTrait;
+
     public function up()
     {
+        $tableName = $this->getModule()->tableName ?: '{{%file}}';
         $this->createTable(
-            '{{%file}}',
+            $tableName,
             [
                 'id' => Schema::TYPE_PK,
                 'name' => Schema::TYPE_STRING . ' NOT NULL',
@@ -24,8 +27,8 @@ class m150127_040544_files extends Migration
             ]
         );
 
-        $this->createIndex('file_model', '{{%file}}', 'model');
-        $this->createIndex('file_item_id', '{{%file}}', 'itemId');
+        $this->createIndex('file_model', $tableName, 'model');
+        $this->createIndex('file_item_id', $tableName, 'itemId');
     }
 
     public function down()
