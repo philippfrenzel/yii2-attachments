@@ -1,28 +1,21 @@
 <?php
 
-namespace nemmo\attachments\components;
+namespace file\components;
 
-use nemmo\attachments\behaviors\FileBehavior;
-use nemmo\attachments\ModuleTrait;
+use file\behaviors\FileBehavior;
+use file\FileModuleTrait;
+use file\models\File;
 use Yii;
 use yii\bootstrap\Widget;
 use yii\data\ArrayDataProvider;
-use yii\db\ActiveRecord;
 use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\helpers\Url;
-
-/**
- * Created by PhpStorm.
- * User: Алимжан
- * Date: 28.01.2015
- * Time: 19:10
- */
 class AttachmentsTable extends Widget
 {
-    use ModuleTrait;
+    use FileModuleTrait;
 
-    /** @var ActiveRecord */
+    /** @var FileActiveRecord */
     public $model;
 
     public $tableOptions = ['class' => 'table table-striped table-bordered table-condensed'];
@@ -69,12 +62,9 @@ class AttachmentsTable extends Widget
             'tableOptions' => $this->tableOptions,
             'columns' => [
                 [
-                    'class' => 'yii\grid\SerialColumn'
-                ],
-                [
                     'label' => $this->getModule()->t('attachments', 'File name'),
                     'format' => 'raw',
-                    'value' => function ($model) {
+                    'value' => function (File $model) {
                         return Html::a("$model->name.$model->type", $model->getUrl());
                     }
                 ],
@@ -85,7 +75,7 @@ class AttachmentsTable extends Widget
                         'delete' => function ($url, $model, $key) {
                             return Html::a('<span class="glyphicon glyphicon-trash"></span>',
                                 [
-                                    '/attachments/file/delete',
+                                    '/file/file/delete',
                                     'id' => $model->id
                                 ],
                                 [

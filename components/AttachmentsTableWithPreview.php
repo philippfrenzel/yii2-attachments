@@ -2,8 +2,8 @@
 
 namespace nemmo\attachments\components;
 
-use nemmo\attachments\behaviors\FileBehavior;
-use nemmo\attachments\ModuleTrait;
+use file\behaviors\FileBehavior;
+use file\FileModuleTrait;
 use Yii;
 use yii\bootstrap\Widget;
 use yii\data\ArrayDataProvider;
@@ -22,7 +22,7 @@ use himiklab\colorbox\Colorbox;
  */
 class AttachmentsTableWithPreview extends Widget
 {
-    use ModuleTrait;
+    use FileModuleTrait;
 
     /** @var ActiveRecord */
     public $model;

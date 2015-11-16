@@ -1,29 +1,22 @@
 <?php
 
-namespace nemmo\attachments;
+namespace file;
 
-/**
- * Created by PhpStorm.
- * User: Алимжан
- * Date: 27.01.2015
- * Time: 12:32
- */
-
-trait ModuleTrait
+trait FileModuleTrait
 {
     /**
-     * @var null|Module
+     * @var null|FileModule
      */
     private $_module = null;
 
     /**
-     * @return null|Module
+     * @return null|FileModule
      * @throws \Exception
      */
     protected function getModule()
     {
         if ($this->_module == null) {
-            $this->_module = \Yii::$app->getModule('attachments');
+            $this->_module = \Yii::$app->getModule('file');
         }
 
         if (!$this->_module) {

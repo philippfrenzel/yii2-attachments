@@ -1,23 +1,17 @@
 <?php
 
-namespace nemmo\attachments\models;
+namespace file\models;
 
-use nemmo\attachments\ModuleTrait;
+use file\FileModuleTrait;
 use yii\base\Model;
 use yii\web\UploadedFile;
 
-/**
- * Created by PhpStorm.
- * User: Алимжан
- * Date: 13.02.2015
- * Time: 21:07
- */
 class UploadForm extends Model
 {
-    use ModuleTrait;
+    use FileModuleTrait;
 
     /**
-     * @var UploadedFile|Null file attribute
+     * @var UploadedFile[] file attribute
      */
     public $file;
 

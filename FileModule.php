@@ -1,22 +1,27 @@
 <?php
 
-namespace nemmo\attachments;
+namespace file;
 
-use nemmo\attachments\models\File;
+use file\models\File;
+use yii\base\Module;
 use yii\helpers\FileHelper;
 use yii\i18n\PhpMessageSource;
 
-class Module extends \yii\base\Module
+class FileModule extends Module
 {
-    public $controllerNamespace = 'nemmo\attachments\controllers';
+    /**
+     * Папка, в которую прокинут линк для прямого доступа по http
+     * @var string
+     */
+    public $webDir = 'files';
+
+    public $controllerNamespace = 'file\controllers';
 
     public $storePath = '@app/uploads/store';
 
     public $tempPath = '@app/uploads/temp';
 
     public $rules = [];
-
-    public $tableName = 'attach_file';
 
     public function init()
     {
@@ -34,19 +39,19 @@ class Module extends \yii\base\Module
 
     public function registerTranslations()
     {
-        \Yii::$app->i18n->translations['nemmo/*'] = [
+        \Yii::$app->i18n->translations['file/*'] = [
             'class' => PhpMessageSource::className(),
             'sourceLanguage' => 'en-US',
-            'basePath' => '@vendor/nemmo/yii2-attachments/messages',
+            'basePath' => '@file/messages',
             'fileMap' => [
-                'nemmo/attachments' => 'attachments.php'
+                'file/attachments' => 'attachments.php'
             ],
         ];
     }
 
     public static function t($category, $message, $params = [], $language = null)
     {
-        return \Yii::t('nemmo/' . $category, $message, $params, $language);
+        return \Yii::t('file/' . $category, $message, $params, $language);
     }
 
     public function getStorePath()
@@ -59,29 +64,15 @@ class Module extends \yii\base\Module
         return \Yii::getAlias($this->tempPath);
     }
 
-    /**
-     * @param $fileHash
-     * @return string
-     */
-    public function getFilesDirPath($fileHash)
+    public function getFilesDirPath($fileHash, $useStorePath = true)
     {
-        $path = $this->getStorePath() . DIRECTORY_SEPARATOR . $this->getSubDirs($fileHash);
+        if($useStorePath){
+            $path = $this->getStorePath() . DIRECTORY_SEPARATOR . $this->getSubDirs($fileHash);
+        } else {
+            $path = DIRECTORY_SEPARATOR . $this->getSubDirs($fileHash);
+        }
 
         FileHelper::createDirectory($path);
-
-        return $path;
-    }
-
-    public function getSubDirs($fileHash, $depth = 3)
-    {
-        $depth = min($depth, 9);
-        $path = '';
-
-        for ($i = 0; $i < $depth; $i++) {
-            $folder = substr($fileHash, $i * 3, 2);
-            $path .= $folder;
-            if ($i != $depth - 1) $path .= DIRECTORY_SEPARATOR;
-        }
 
         return $path;
     }
@@ -126,8 +117,10 @@ class Module extends \yii\base\Module
 
         $fileHash = md5(microtime(true) . $filePath);
         $fileType = pathinfo($filePath, PATHINFO_EXTENSION);
+        $fileName = pathinfo($filePath, PATHINFO_FILENAME);
         $newFileName = $fileHash . '.' . $fileType;
         $fileDirPath = $this->getFilesDirPath($fileHash);
+
 
         $newFilePath = $fileDirPath . DIRECTORY_SEPARATOR . $newFileName;
 
@@ -139,7 +132,7 @@ class Module extends \yii\base\Module
 
         $file = new File();
 
-        $file->name = pathinfo($filePath, PATHINFO_FILENAME);
+        $file->name = $fileName;
         $file->model = $this->getShortClass($owner);
         $file->itemId = $owner->id;
         $file->hash = $fileHash;
@@ -152,8 +145,8 @@ class Module extends \yii\base\Module
             return $file;
         } else {
             if (count($file->getErrors()) > 0) {
-
-                $ar = array_shift($file->getErrors());
+                $errors = $file->getErrors();
+                $ar = array_shift($errors);
 
                 unlink($newFilePath);
                 throw new \Exception(array_shift($ar));
@@ -164,10 +157,43 @@ class Module extends \yii\base\Module
 
     public function detachFile($id)
     {
+        /** @var File $file */
         $file = File::findOne(['id' => $id]);
         $filePath = $this->getFilesDirPath($file->hash) . DIRECTORY_SEPARATOR . $file->hash . '.' . $file->type;
         unlink($filePath);
 
         $file->delete();
+    }
+
+    /**
+     * @param File $file
+     * @return string
+     */
+    public function getWebPath(File $file)
+    {
+        $fileName = $file->hash . '.' . $file->type;
+        $webPath = '/' . $this->webDir . '/' . $this->getSubDirs($file->hash) . '/' . $fileName;
+        return $webPath;
+    }
+
+    /**
+     * @param $fileHash
+     * @param int $depth
+     * @return string
+     * @internal param File $file
+     */
+
+    public function getSubDirs($fileHash, $depth = 3)
+    {
+        $depth = min($depth, 9);
+        $path = '';
+
+        for ($i = 0; $i < $depth; $i++) {
+            $folder = substr($fileHash, $i * 3, 2);
+            $path .= $folder;
+            if ($i != $depth - 1) $path .= DIRECTORY_SEPARATOR;
+        }
+
+        return $path;
     }
 }

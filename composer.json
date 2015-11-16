@@ -1,14 +1,18 @@
 {
-    "name": "nemmo/yii2-attachments",
+    "name": "axelpal/yii2-attachments",
     "description": "Extension for file uploading and attaching to the models",
     "type": "yii2-extension",
     "keywords": ["yii2","extension","attachment","file","upload"],
     "license": "BSD-4-Clause",
     "authors": [
         {
-            "name": "Alimzhan Abuov aka Nemmo",
+          "name": "Alimzhan Abuov aka Nemmo",
           "email": "alimzhan.abu@yandex.kz"
-        }
+        },
+      {
+        "name": "Alexander Palchikov aka AxelPAL",
+        "email": "axelpal@gmail.com"
+      }
     ],
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -20,7 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-            "nemmo\\attachments\\": ""
+            "file\\": ""
         }
     }
 }

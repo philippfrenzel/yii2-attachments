@@ -1,33 +1,38 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Алимжан
- * Date: 27.01.2015
- * Time: 12:24
- */
+namespace file\behaviors;
 
-namespace nemmo\attachments\behaviors;
-
-use nemmo\attachments\models\File;
-use nemmo\attachments\ModuleTrait;
+use file\FileModuleTrait;
+use file\models\File;
+use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 use yii\helpers\FileHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\web\Application;
 use yii\web\UploadedFile;
 
+/**
+ * Class FileBehavior
+ * @property ActiveRecord $owner
+ * @package file\behaviors
+ */
 class FileBehavior extends Behavior
 {
-    use ModuleTrait;
+    use FileModuleTrait;
 
     public function events()
     {
-        return [
-            ActiveRecord::EVENT_AFTER_INSERT => 'saveUploads',
-            ActiveRecord::EVENT_AFTER_UPDATE => 'saveUploads',
+        $events = [
             ActiveRecord::EVENT_AFTER_DELETE => 'deleteUploads'
         ];
+
+        if (Yii::$app instanceof Application) {
+            $events[ActiveRecord::EVENT_AFTER_INSERT] = 'saveUploads';
+            $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'saveUploads';
+        }
+
+        return $events;
     }
 
     public function saveUploads($event)
@@ -59,19 +64,44 @@ class FileBehavior extends Behavior
     }
 
     /**
-     * @return File[]
+     * @param string $andWhere
+     * @return array|File[]
      * @throws \Exception
      */
-    public function getFiles()
+    public function getFiles($andWhere = '')
     {
         $fileQuery = File::find()
-            ->where([
-                'itemId' => $this->owner->id,
-                'model' => $this->getModule()->getShortClass($this->owner)
-            ]);
-        $fileQuery->orderBy(['id' => SORT_ASC]);
+            ->where(
+                [
+                    'itemId' => $this->owner->getAttribute('id'),
+                    'model' => $this->getModule()->getShortClass($this->owner)
+                ]
+            );
+        $fileQuery->orderBy('is_main DESC, sort DESC');
+
+        if($andWhere) {
+            $fileQuery->andWhere($andWhere);
+        }
 
         return $fileQuery->all();
+    }
+
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function getGalleryFiles()
+    {
+        $files = File::find()
+            ->where([
+                'itemId' => $this->owner->getAttribute('id'),
+                'model' => $this->getModule()->getShortClass($this->owner)
+            ])
+            ->orderBy('is_main DESC, sort DESC')
+            ->all();
+        if( count( $files ) > 0 ) {
+            array_shift( $files );
+        }
+        return $files;
     }
 
     public function getInitialPreview()
@@ -81,7 +111,10 @@ class FileBehavior extends Behavior
         $userTempDir = $this->getModule()->getUserDirPath();
         foreach (FileHelper::findFiles($userTempDir) as $file) {
             if (substr(FileHelper::getMimeType($file), 0, 5) === 'image') {
-                $initialPreview[] = Html::img(['/attachments/file/download-temp', 'filename' => basename($file)], ['class' => 'file-preview-image']);
+                $initialPreview[] = Html::img(
+                    ['/file/file/download-temp', 'filename' => basename($file)],
+                    ['class' => 'file-preview-image']
+                );
             } else {
                 $initialPreview[] = Html::beginTag('div', ['class' => 'file-preview-other']) .
                     Html::beginTag('h2') .
@@ -115,21 +148,55 @@ class FileBehavior extends Behavior
             $filename = basename($file);
             $initialPreviewConfig[] = [
                 'caption' => $filename,
-                'url' => Url::to(['/attachments/file/delete-temp',
-                    'filename' => $filename
-                ]),
+                'url' => Url::to(
+                    ['/file/file/delete-temp',
+                        'filename' => $filename
+                    ]
+                ),
             ];
         }
 
         foreach ($this->getFiles() as $index => $file) {
             $initialPreviewConfig[] = [
-                'caption' => "$file->name.$file->type",
-                'url' => Url::toRoute(['/attachments/file/delete',
-                    'id' => $file->id
-                ]),
+                'caption' => $file->name,
+                'url' => Url::toRoute(
+                    ['/file/file/delete',
+                        'id' => $file->id
+                    ]
+                ),
+                'key' => $file->id,
             ];
         }
 
         return $initialPreviewConfig;
     }
+
+    public function getMainFile()
+    {
+        $file = File::find()
+            ->where([
+                'itemId' => $this->owner->getAttribute('id'),
+                'model' => $this->getModule()->getShortClass($this->owner)
+            ])
+            ->orderBy('is_main DESC')
+            ->limit(1)
+            ->one();
+        return $file;
+    }
+
+    /**
+     * @return int
+     * @throws \Exception
+     */
+    public function getFileCount()
+    {
+        $count = File::find()
+            ->where([
+                'itemId' => $this->owner->getAttribute('id'),
+                'model' => $this->getModule()->getShortClass($this->owner)
+            ])
+            ->count();
+        return (int)$count;
+    }
+
 }
