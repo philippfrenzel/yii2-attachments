@@ -16,7 +16,7 @@ Installation
 	Either run
 	
 	```
-	php composer.phar require axelpal/yii2-attachments "dev-master"
+	composer require axelpal/yii2-attachments "dev-master"
 	```
 	
 	or add
