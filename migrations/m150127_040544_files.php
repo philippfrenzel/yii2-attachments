@@ -9,9 +9,8 @@ class m150127_040544_files extends Migration
 
     public function up()
     {
-        $tableName = $this->getModule()->tableName ?: '{{%file}}';
         $this->createTable(
-            $tableName,
+            $this->getModule()->tableName,
             [
                 'id' => Schema::TYPE_PK,
                 'name' => Schema::TYPE_STRING . ' NOT NULL',
@@ -27,8 +26,8 @@ class m150127_040544_files extends Migration
             ]
         );
 
-        $this->createIndex('file_model', $tableName, 'model');
-        $this->createIndex('file_item_id', $tableName, 'itemId');
+        $this->createIndex('file_model', $this->getModule()->tableName, 'model');
+        $this->createIndex('file_item_id', $this->getModule()->tableName, 'itemId');
     }
 
     public function down()

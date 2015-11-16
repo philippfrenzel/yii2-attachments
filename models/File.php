@@ -35,7 +35,7 @@ class File extends ActiveRecord
      */
     public static function tableName()
     {
-        return \Yii::$app->getModule('file')->tableName ?: '{{%file}}';
+        return \Yii::$app->getModule('file')->tableName;
     }
 
     public function behaviors() {
