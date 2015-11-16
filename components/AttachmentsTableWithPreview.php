@@ -1,6 +1,6 @@
 <?php
 
-namespace nemmo\attachments\components;
+namespace file\components;
 
 use file\behaviors\FileBehavior;
 use file\FileModuleTrait;
