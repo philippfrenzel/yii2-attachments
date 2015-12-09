@@ -90,7 +90,7 @@ class AttachmentsTableWithPreview extends Widget
                         'delete' => function ($url, $model, $key) {
                             return Html::a('<span class="glyphicon glyphicon-trash"></span>',
                                 [
-                                    '/attachments/file/delete',
+                                    '/file/file/delete',
                                     'id' => $model->id
                                 ],
                                 [
