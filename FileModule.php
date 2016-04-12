@@ -6,6 +6,7 @@ use file\models\File;
 use yii\base\Module;
 use yii\helpers\FileHelper;
 use yii\i18n\PhpMessageSource;
+use yii\web\Controller;
 
 class FileModule extends Module
 {
@@ -81,12 +82,16 @@ class FileModule extends Module
 
     public function getUserDirPath()
     {
-        \Yii::$app->session->open();
+        if(\Yii::$app->controller instanceof Controller) {
+            \Yii::$app->session->open();
+            $sessionId = \Yii::$app->session->id;
+            \Yii::$app->session->close();
+        } else {
+            $sessionId = 'console';
+        }
 
-        $userDirPath = $this->getTempPath() . DIRECTORY_SEPARATOR . \Yii::$app->session->id;
+        $userDirPath = $this->getTempPath() . DIRECTORY_SEPARATOR . $sessionId;
         FileHelper::createDirectory($userDirPath);
-
-        \Yii::$app->session->close();
 
         return $userDirPath . DIRECTORY_SEPARATOR;
     }
