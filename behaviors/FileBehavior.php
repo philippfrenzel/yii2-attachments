@@ -93,7 +93,7 @@ class FileBehavior extends Behavior
         return $fileQuery->all();
     }
     
-    public function getFilesByAttributeName($attribute = 'file')
+    public function getFilesByAttributeName($attribute = 'file', $sort = 'id')
     {
         $fileQuery = File::find()
             ->where([
@@ -101,7 +101,7 @@ class FileBehavior extends Behavior
                 'model' => $this->getModule()->getShortClass($this->owner),
                 'attribute' => $attribute,
             ]);
-        $fileQuery->orderBy(['id' => SORT_ASC]);
+        $fileQuery->orderBy([$sort => SORT_ASC]);
 
         return $fileQuery->all();
     }
