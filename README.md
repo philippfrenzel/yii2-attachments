@@ -16,13 +16,13 @@ Installation
 	Either run
 	
 	```
-	composer require axelpal/yii2-attachments "dev-master"
+	composer require badbreze/yii2-attachments "dev-master"
 	```
 	
 	or add
 	
 	```
-	"axelpal/yii2-attachments": "dev-master"
+	"badbreze/yii2-attachments": "dev-master"
 	```
 	
 	to the require section of your `composer.json` file.
@@ -61,7 +61,7 @@ Installation
 3. Apply migrations
 
 	```
-	php yii migrate/up --migrationPath=@vendor/axelpal/yii2-attachments/migrations
+	php yii migrate/up --migrationPath=@vendor/badbreze/yii2-attachments/migrations
 	```
 
 4. Attach behavior to your model (be sure that your model has "id" property)

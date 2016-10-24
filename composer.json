@@ -1,5 +1,5 @@
 {
-    "name": "axelpal/yii2-attachments",
+    "name": "badbreze/yii2-attachments",
     "description": "Extension for file uploading and attaching to the models",
     "type": "yii2-extension",
     "keywords": ["yii2","extension","attachment","file","upload"],
@@ -13,13 +13,17 @@
         "name": "Alexander Palchikov aka AxelPAL",
         "email": "axelpal@gmail.com"
       }
+      {
+        "name": "Damian Gomez aka Badbreze",
+        "email": "info@divenock.com"
+      }
     ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
         "php": ">=5.4.0",
         "yiisoft/yii2": "*",
-        "kartik-v/yii2-widget-fileinput": "v1.0.3",
+        "kartik-v/yii2-widget-fileinput": "~1.0.0",
         "himiklab/yii2-colorbox-widget": "*",
         "yiisoft/yii2-jui": "^2.0"
     },
