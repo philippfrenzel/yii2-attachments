@@ -2,9 +2,9 @@
 
 namespace file\controllers;
 
-use file\attachments\models\File;
-use file\attachments\models\UploadForm;
-use file\attachments\ModuleTrait;
+use file\models\File;
+use file\models\UploadForm;
+use file\FileModuleTrait;
 use yii\helpers\FileHelper;
 use yii\helpers\Url;
 use yii\web\Controller;
@@ -15,7 +15,7 @@ use Yii;
 
 class FileController extends Controller
 {
-    use ModuleTrait;
+    use FileModuleTrait;
 
     public function behaviors()
     {

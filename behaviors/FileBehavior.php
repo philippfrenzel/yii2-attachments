@@ -3,8 +3,8 @@ namespace file\behaviors;
 
 namespace nemmo\attachments\behaviors;
 
-use nemmo\attachments\models\File;
-use nemmo\attachments\ModuleTrait;
+use file\models\File;
+use file\FileModuleTrait;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 use yii\helpers\FileHelper;
@@ -20,7 +20,7 @@ use yii\web\UploadedFile;
  */
 class FileBehavior extends Behavior
 {
-    use ModuleTrait;
+    use FileModuleTrait;
 
     var $attributes = ['file'];
 
