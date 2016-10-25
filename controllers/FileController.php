@@ -2,22 +2,45 @@
 
 namespace file\controllers;
 
-use file\models\File;
-use file\models\UploadForm;
-use file\FileModuleTrait;
+use file\attachments\models\File;
+use file\attachments\models\UploadForm;
+use file\attachments\ModuleTrait;
 use yii\helpers\FileHelper;
 use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\web\UploadedFile;
+use yii\filters\AccessControl;
 use Yii;
 
 class FileController extends Controller
 {
-    use FileModuleTrait;
+    use ModuleTrait;
+
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['download', 'delete'],
+                'rules' => [
+                    [
+                        'actions' => ['download', 'delete'],
+                        'allow' => true,
+                        'matchCallback' => function ($rule, $action){
+                            return $this->checkAccess();
+                        }
+                    ],
+                ],
+            ],
+        ];
+    }
 
     public function actionUpload()
     {
+        $getData = Yii::$app->request->get();
+        $attribute = $getData['attribute'];
+
         $model = new UploadForm();
         $model->file = UploadedFile::getInstances($model, 'file');
 
@@ -29,22 +52,20 @@ class FileController extends Controller
             $result['uploadedFiles'] = [];
             if (is_array($model->file)) {
                 foreach ($model->file as $file) {
-                    /** @var UploadedFile $file */
-                    $path = $this->getModule()->getUserDirPath() . DIRECTORY_SEPARATOR . $file->name;
+                    $path = $this->getModule()->getUserDirPath($attribute) . DIRECTORY_SEPARATOR . $file->name;
                     $file->saveAs($path);
                     $result['uploadedFiles'][] = $file->name;
                 }
             } else {
-                $path = $this->getModule()->getUserDirPath() . DIRECTORY_SEPARATOR . $model->file->name;
+                $path = $this->getModule()->getUserDirPath($attribute) . DIRECTORY_SEPARATOR . $model->file->name;
                 $model->file->saveAs($path);
             }
+
             return json_encode($result);
         } else {
-            return json_encode(
-                [
-                    'error' => $model->errors['file']
-                ]
-            );
+            return json_encode([
+                'error' => $model->errors['file']
+            ]);
         }
     }
 
@@ -52,18 +73,16 @@ class FileController extends Controller
     {
         /** @var File $file */
         $file = File::findOne(['id' => $id]);
-        $filePath = $this->getModule()->getFilesDirPath(
-                $file->hash
-            ) . DIRECTORY_SEPARATOR . $file->hash . '.' . $file->type;
+        $filePath = $this->getModule()->getFilesDirPath($file->hash) . DIRECTORY_SEPARATOR . $file->hash . '.' . $file->type;
 
-        return Yii::$app->response->sendFile($filePath, "$file->hash.$file->type");
+        return \Yii::$app->response->sendFile($filePath, "$file->hash.$file->type");
     }
 
     public function actionDelete($id)
     {
         $this->getModule()->detachFile($id);
 
-        if (Yii::$app->request->isAjax) {
+        if (\Yii::$app->request->isAjax) {
             return json_encode([]);
         } else {
             return $this->redirect(Url::previous());
@@ -74,7 +93,7 @@ class FileController extends Controller
     {
         $filePath = $this->getModule()->getUserDirPath() . DIRECTORY_SEPARATOR . $filename;
 
-        return Yii::$app->response->sendFile($filePath, $filename);
+        return \Yii::$app->response->sendFile($filePath, $filename);
     }
 
     public function actionDeleteTemp($filename)
@@ -86,11 +105,36 @@ class FileController extends Controller
             rmdir($userTempDir);
         }
 
-        if (Yii::$app->request->isAjax) {
+        if (\Yii::$app->request->isAjax) {
             return json_encode([]);
         } else {
             return $this->redirect(Url::previous());
         }
+    }
+
+    protected function checkAccess()
+    {
+
+        $access = true;
+
+        // ACL filter
+        $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
+
+        // check access
+        $file = File::findOne(['id' => $id]);
+        $modelClass = '\app\models\\' . $file->model;
+        $model = new $modelClass();
+        $behaviours = $model->behaviors();
+        $fileBehaviour = $behaviours['fileBehavior'];
+        $permission = $fileBehaviour['permissions'][$file->attribute];
+        if(!empty($permission)) {
+            if(!Yii::$app->user->can($permission)) {
+                $access = false;
+            }
+        }
+
+        return $access;
+
     }
 
     public function actionSetMain()

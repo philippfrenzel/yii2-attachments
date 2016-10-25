@@ -67,6 +67,11 @@ class FileModule extends Module
         return \Yii::getAlias($this->tempPath);
     }
 
+    /**
+     * @param $fileHash
+     * @param $useStorePath
+     * @return string
+     */
     public function getFilesDirPath($fileHash, $useStorePath = true)
     {
         if($useStorePath){
@@ -80,18 +85,28 @@ class FileModule extends Module
         return $path;
     }
 
-    public function getUserDirPath()
+    public function getSubDirs($fileHash, $depth = 3)
     {
-        if(\Yii::$app->controller instanceof Controller) {
-            \Yii::$app->session->open();
-            $sessionId = \Yii::$app->session->id;
-            \Yii::$app->session->close();
-        } else {
-            $sessionId = 'console';
+        $depth = min($depth, 9);
+        $path = '';
+
+        for ($i = 0; $i < $depth; $i++) {
+            $folder = substr($fileHash, $i * 3, 2);
+            $path .= $folder;
+            if ($i != $depth - 1) $path .= DIRECTORY_SEPARATOR;
         }
 
-        $userDirPath = $this->getTempPath() . DIRECTORY_SEPARATOR . $sessionId;
+        return $path;
+    }
+
+    public function getUserDirPath($suffix = '')
+    {
+        \Yii::$app->session->open();
+
+        $userDirPath = $this->getTempPath() . DIRECTORY_SEPARATOR . \Yii::$app->session->id . $suffix;
         FileHelper::createDirectory($userDirPath);
+
+        \Yii::$app->session->close();
 
         return $userDirPath . DIRECTORY_SEPARATOR;
     }
@@ -108,11 +123,12 @@ class FileModule extends Module
     /**
      * @param $filePath string
      * @param $owner
+     * @param $attribute
      * @return bool|File
      * @throws \Exception
      * @throws \yii\base\InvalidConfigException
      */
-    public function attachFile($filePath, $owner)
+    public function attachFile($filePath, $owner, $attribute='file')
     {
         if (!$owner->id) {
             throw new \Exception('Owner must have id when you attach file');
@@ -127,7 +143,6 @@ class FileModule extends Module
         $fileName = pathinfo($filePath, PATHINFO_FILENAME);
         $newFileName = $fileHash . '.' . $fileType;
         $fileDirPath = $this->getFilesDirPath($fileHash);
-
 
         $newFilePath = $fileDirPath . DIRECTORY_SEPARATOR . $newFileName;
 
@@ -146,6 +161,7 @@ class FileModule extends Module
         $file->size = filesize($filePath);
         $file->type = $fileType;
         $file->mime = FileHelper::getMimeType($filePath);
+        $file->attribute = $attribute;
 
         if ($file->save()) {
             unlink($filePath);
@@ -181,26 +197,5 @@ class FileModule extends Module
         $fileName = $file->hash . '.' . $file->type;
         $webPath = '/' . $this->webDir . '/' . $this->getSubDirs($file->hash) . '/' . $fileName;
         return $webPath;
-    }
-
-    /**
-     * @param $fileHash
-     * @param int $depth
-     * @return string
-     * @internal param File $file
-     */
-
-    public function getSubDirs($fileHash, $depth = 3)
-    {
-        $depth = min($depth, 9);
-        $path = '';
-
-        for ($i = 0; $i < $depth; $i++) {
-            $folder = substr($fileHash, $i * 3, 2);
-            $path .= $folder;
-            if ($i != $depth - 1) $path .= DIRECTORY_SEPARATOR;
-        }
-
-        return $path;
     }
 }

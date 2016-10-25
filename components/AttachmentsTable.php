@@ -17,6 +17,8 @@ class AttachmentsTable extends Widget
 
     /** @var FileActiveRecord */
     public $model;
+    
+    public $attribute = 'file';
 
     public $tableOptions = ['class' => 'table table-striped table-bordered table-condensed'];
 
@@ -57,7 +59,7 @@ class AttachmentsTable extends Widget
 
         Url::remember(Url::current());
         return GridView::widget([
-            'dataProvider' => new ArrayDataProvider(['allModels' => $this->model->getFiles()]),
+            'dataProvider' => new ArrayDataProvider(['allModels' => $this->model->getFilesByAttributeName($this->attribute)]),
             'layout' => '{items}',
             'tableOptions' => $this->tableOptions,
             'columns' => [
@@ -81,7 +83,7 @@ class AttachmentsTable extends Widget
                                 [
                                     'title' => Yii::t('yii', 'Delete'),
                                     'data-confirm' => Yii::t('yii', 'Are you sure you want to delete this item?'),
-                                    'data-method' => 'post',
+//                                    'data-method' => 'post',
                                 ]
                             );
                         }
