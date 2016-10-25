@@ -1,8 +1,6 @@
 <?php
 namespace file\behaviors;
 
-namespace nemmo\attachments\behaviors;
-
 use file\models\File;
 use file\FileModuleTrait;
 use yii\base\Behavior;
@@ -26,24 +24,23 @@ class FileBehavior extends Behavior
 
     var $permissions = [];
 
+    var $rules = [];
+
     public function events()
     {
         $events = [
-            ActiveRecord::EVENT_AFTER_DELETE => 'deleteUploads'
+            ActiveRecord::EVENT_AFTER_DELETE => 'deleteUploads',
+            ActiveRecord::EVENT_AFTER_INSERT => 'saveUploads',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'saveUploads'
         ];
-
-        if (Yii::$app instanceof Application) {
-            $events[ActiveRecord::EVENT_AFTER_INSERT] = 'saveUploads';
-            $events[ActiveRecord::EVENT_AFTER_UPDATE] = 'saveUploads';
-        }
 
         return $events;
     }
 
     public function saveUploads($event)
     {
-        if(!empty($this->attributes)) {
-            foreach($this->attributes as $attribute) {
+        if (!empty($this->attributes)) {
+            foreach ($this->attributes as $attribute) {
                 $this->saveAttributeUploads($attribute);
             }
         }
@@ -95,27 +92,28 @@ class FileBehavior extends Behavior
             ->where(
                 [
                     'itemId' => $this->owner->getAttribute('id'),
-                    'model' => $this->getModule()->getShortClass($this->owner)
+                    'model' => $this->getModule()->getClass($this->owner)
                 ]
             );
         $fileQuery->orderBy('is_main DESC, sort DESC');
 
-        if($andWhere) {
+        if ($andWhere) {
             $fileQuery->andWhere($andWhere);
         }
 
         return $fileQuery->all();
     }
 
-    public function getFilesByAttributeName($attribute = 'file')
+    public function getFilesByAttributeName($attribute = 'file', $sort = 'id')
     {
         $fileQuery = File::find()
             ->where([
                 'itemId' => $this->owner->id,
-                'model' => $this->getModule()->getShortClass($this->owner),
+                'model' => $this->getModule()->getClass($this->owner),
                 'attribute' => $attribute,
             ]);
-        $fileQuery->orderBy(['id' => SORT_ASC]);
+
+        $fileQuery->orderBy([$sort => SORT_ASC]);
 
         return $fileQuery->all();
     }
@@ -128,12 +126,12 @@ class FileBehavior extends Behavior
         $files = File::find()
             ->where([
                 'itemId' => $this->owner->getAttribute('id'),
-                'model' => $this->getModule()->getShortClass($this->owner)
+                'model' => $this->getModule()->getClass($this->owner)
             ])
             ->orderBy('is_main DESC, sort DESC')
             ->all();
-        if( count( $files ) > 0 ) {
-            array_shift( $files );
+        if (count($files) > 0) {
+            array_shift($files);
         }
         return $files;
     }
@@ -145,7 +143,7 @@ class FileBehavior extends Behavior
         $userTempDir = $this->getModule()->getUserDirPath();
         foreach (FileHelper::findFiles($userTempDir) as $file) {
             if (substr(FileHelper::getMimeType($file), 0, 5) === 'image') {
-                $initialPreview[] = Html::img(['/attachments/file/download-temp', 'filename' => basename($file)], ['class' => 'file-preview-image']);
+                $initialPreview[] = Html::img(['/file/file/download-temp', 'filename' => basename($file)], ['class' => 'file-preview-image']);
             } else {
                 $initialPreview[] = Html::beginTag('div', ['class' => 'file-preview-other']) .
                     Html::beginTag('h2') .
@@ -177,7 +175,7 @@ class FileBehavior extends Behavior
         $userTempDir = $this->getModule()->getUserDirPath($attribute);
         foreach (FileHelper::findFiles($userTempDir) as $file) {
             if (substr(FileHelper::getMimeType($file), 0, 5) === 'image') {
-                $initialPreview[] = Html::img(['/attachments/file/download-temp', 'filename' => basename($file)], ['class' => 'file-preview-image']);
+                $initialPreview[] = Html::img(['/file/file/download-temp', 'filename' => basename($file)], ['class' => 'file-preview-image']);
             } else {
                 $initialPreview[] = Html::beginTag('div', ['class' => 'file-preview-other']) .
                     Html::beginTag('h2') .
@@ -211,6 +209,7 @@ class FileBehavior extends Behavior
             $filename = basename($file);
             $initialPreviewConfig[] = [
                 'caption' => $filename,
+                'size' => $file->size,
                 'url' => Url::to(
                     ['/file/file/delete-temp',
                         'filename' => $filename
@@ -222,6 +221,7 @@ class FileBehavior extends Behavior
         foreach ($this->getFiles() as $index => $file) {
             $initialPreviewConfig[] = [
                 'caption' => $file->name,
+                'size' => $file->size,
                 'url' => Url::toRoute(
                     ['/file/file/delete',
                         'id' => $file->id
@@ -243,7 +243,8 @@ class FileBehavior extends Behavior
             $filename = basename($file);
             $initialPreviewConfig[] = [
                 'caption' => $filename,
-                'url' => Url::to(['/attachments/file/delete-temp',
+                'size' => $file->size,
+                'url' => Url::to(['/file/file/delete-temp',
                     'filename' => $filename
                 ]),
             ];
@@ -252,7 +253,8 @@ class FileBehavior extends Behavior
         foreach ($this->getFilesByAttributeName($attribute) as $index => $file) {
             $initialPreviewConfig[] = [
                 'caption' => "$file->name.$file->type",
-                'url' => Url::toRoute(['/attachments/file/delete',
+                'size' => $file->size,
+                'url' => Url::toRoute(['/file/file/delete',
                     'id' => $file->id
                 ]),
             ];
@@ -266,7 +268,7 @@ class FileBehavior extends Behavior
         $file = File::find()
             ->where([
                 'itemId' => $this->owner->getAttribute('id'),
-                'model' => $this->getModule()->getShortClass($this->owner)
+                'model' => $this->getModule()->getClass($this->owner)
             ])
             ->orderBy('is_main DESC')
             ->limit(1)
@@ -283,7 +285,7 @@ class FileBehavior extends Behavior
         $count = File::find()
             ->where([
                 'itemId' => $this->owner->getAttribute('id'),
-                'model' => $this->getModule()->getShortClass($this->owner)
+                'model' => $this->getModule()->getClass($this->owner)
             ])
             ->count();
         return (int)$count;

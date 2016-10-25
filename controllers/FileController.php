@@ -73,6 +73,7 @@ class FileController extends Controller
     {
         /** @var File $file */
         $file = File::findOne(['id' => $id]);
+
         $filePath = $this->getModule()->getFilesDirPath($file->hash) . DIRECTORY_SEPARATOR . $file->hash . '.' . $file->type;
 
         return \Yii::$app->response->sendFile($filePath, "$file->hash.$file->type");
@@ -122,7 +123,7 @@ class FileController extends Controller
 
         // check access
         $file = File::findOne(['id' => $id]);
-        $modelClass = '\app\models\\' . $file->model;
+        $modelClass = $file->model;
         $model = new $modelClass();
         $behaviours = $model->behaviors();
         $fileBehaviour = $behaviours['fileBehavior'];

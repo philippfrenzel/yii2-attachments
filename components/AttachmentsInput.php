@@ -46,27 +46,11 @@ class AttachmentsInput extends Widget
         FileHelper::removeDirectory($this->getModule()->getUserDirPath($this->attribute)); // Delete all uploaded files in past
 
         $this->pluginOptions = array_replace($this->pluginOptions, [
-            'uploadUrl' => Url::toRoute(['/attachments/file/upload', 'attribute'=>$this->attribute]),
+            'uploadUrl' => Url::toRoute(['/file/file/upload', 'attribute'=>$this->attribute]),
             'initialPreview' => $this->model->isNewRecord ? [] : $this->model->getInitialPreviewByAttributeName($this->attribute),
             'initialPreviewConfig' => $this->model->isNewRecord ? [] : $this->model->getInitialPreviewConfigByAttributeName($this->attribute),
             'uploadAsync' => false,
-            'otherActionButtons' =>
-                '<button type="button" class="js-caption-rename rename-button btn btn-xs btn-default" title="Переименовать" {dataKey}><i class="glyphicon glyphicon-comment text-danger"></i></button>'
-                .
-                '<input type="checkbox" class="jsFileMain" title="Главная" {dataKey}>'
-            ,
-            'slugCallback' => new JsExpression(<<<JS
-function(text) {return text.split(/(\\|\/)/g).pop();}
-JS
-            ),
-            'layoutTemplates' => [
-                'footer' => '
-<div class="file-thumbnail-footer">
-    <div style="margin:5px 0">
-        <input  class="form-control js-custom-caption" value="{caption}" />
-    </div>{actions}
-</div>',
-            ]
+            'overwriteInitial' => false
         ]);
 
         $this->options = array_replace(
@@ -81,83 +65,80 @@ JS
         $urlRenameFile = Url::toRoute('/file/file/rename');
 
         $js = <<<JS
-var fileInput{$this->attribute} = $('#{$this->id}');
-var form{$this->attribute} = fileInput{$this->attribute}.closest('form');
-var filesUploaded{$this->attribute} = false;
-var filesToUpload{$this->attribute} = 0;
-var uploadButtonClicked{$this->attribute} = false;
-
-form{$this->attribute}.on('beforeSubmit', function(event) { // form submit event
-    console.log('submit');
-    if (!filesUploaded{$this->attribute} && filesToUpload{$this->attribute}) {
-        console.log('upload');
-        $('#{{$this->id}}').fileinput('upload').fileinput('lock');
-
-        return false;
-    }
-});
-
-fileInput{$this->attribute}.on('filebatchpreupload', function(event, data, previewId, index) {
-    uploadButtonClicked{$this->attribute} = true;
-});
-
-
-fileInput{$this->attribute}.on('filebatchuploadsuccess', function(event, data, previewId, index) {
-    filesUploaded{$this->attribute} = true;
-    $('#{{$this->id}}').fileinput('unlock');
-    if (!uploadButtonClicked{$this->attribute}) {
-        form{$this->attribute}.submit();
-    } else {
-        uploadButtonClicked{$this->attribute} = false;
-    }
-});
-
-fileInput{$this->attribute}.on('filebatchselected', function(event, files) { // there are some files to upload
-    filesToUpload{$this->attribute} = files.length
-});
-
-fileInput{$this->attribute}.on('filecleared', function(event) { // no files to upload
-    filesToUpload{$this->attribute} = 0;
-});
-$('.formInput-{$this->getId()}').on('change', '.jsFileMain', function() {
-    var element = $(this);
-    var key = element.data('key');
-    $.ajax(
-        '$urlSetMain',
-        {
-            method: "POST",
-            data: {
-                id:key,
-                value:element.prop('checked')
-            },
-            success: function(data) {
-                $('.formInput-{$this->getId()} .jsFileMain').prop('checked', false);
-                if(data.id) {
-                     $('.formInput-{$this->getId()} .jsFileMain[data-key="' + data.id + '"]').prop('checked', true);
+            var fileInput{$this->attribute} = $('#{$this->id}');
+            var form{$this->attribute} = fileInput{$this->attribute}.closest('form');
+            var filesUploaded{$this->attribute} = false;
+            var filesToUpload{$this->attribute} = 0;
+            var uploadButtonClicked{$this->attribute} = false;
+            
+            form{$this->attribute}.on('beforeSubmit', function(event) { // form submit event
+                if (!filesUploaded{$this->attribute} && filesToUpload{$this->attribute}) {
+                    $('#{$this->id}').fileinput('upload').fileinput('lock');
+                    return false;
                 }
-            }
-        }
-    );
-});
-
-$('.formInput-{$this->getId()}').on('click', '.js-caption-rename', function() {
-    var element = $(this);
-    var key = element.data('key');
-    var input = $(this).parents('.file-preview-frame').find('.js-custom-caption');
-    var name = input.val();
-    $.ajax(
-        '$urlRenameFile',
-        {
-            method: "POST",
-            data: {
-                id: key,
-                name: name
-            },
-            success: function(data) {
-            }
-        }
-    );
-});
+            });
+            
+            fileInput{$this->attribute}.on('filebatchpreupload', function(event, data, previewId, index) {
+                uploadButtonClicked{$this->attribute} = true;
+            });
+            
+            
+            fileInput{$this->attribute}.on('filebatchuploadsuccess', function(event, data, previewId, index) {
+                filesUploaded{$this->attribute} = true;
+                $('#{$this->id}').fileinput('unlock');
+                if (!uploadButtonClicked{$this->attribute}) {
+                    form{$this->attribute}.submit();
+                } else {
+                    uploadButtonClicked{$this->attribute} = false;
+                }
+            });
+            
+            fileInput{$this->attribute}.on('filebatchselected', function(event, files) { // there are some files to upload
+                filesToUpload{$this->attribute} = files.length
+            });
+            
+            fileInput{$this->attribute}.on('filecleared', function(event) { // no files to upload
+                filesToUpload{$this->attribute} = 0;
+            });
+            $('.formInput-{$this->getId()}').on('change', '.jsFileMain', function() {
+                var element = $(this);
+                var key = element.data('key');
+                $.ajax(
+                    '$urlSetMain',
+                    {
+                        method: "POST",
+                        data: {
+                            id:key,
+                            value:element.prop('checked')
+                        },
+                        success: function(data) {
+                            $('.formInput-{$this->getId()} .jsFileMain').prop('checked', false);
+                            if(data.id) {
+                                 $('.formInput-{$this->getId()} .jsFileMain[data-key="' + data.id + '"]').prop('checked', true);
+                            }
+                        }
+                    }
+                );
+            });
+            
+            $('.formInput-{$this->getId()}').on('click', '.js-caption-rename', function() {
+                var element = $(this);
+                var key = element.data('key');
+                var input = $(this).parents('.file-preview-frame').find('.js-custom-caption');
+                var name = input.val();
+                $.ajax(
+                    '$urlRenameFile',
+                    {
+                        method: "POST",
+                        data: {
+                            id: key,
+                            name: name
+                        },
+                        success: function(data) {
+                        }
+                    }
+                );
+            });
 JS;
 
         \Yii::$app->view->registerJs($js);

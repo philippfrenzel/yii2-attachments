@@ -24,7 +24,7 @@ class FileModule extends Module
 
     public $rules = [];
 
-    public $tableName = 'file';
+    public $tableName = 'attach_file';
 
     public function init()
     {
@@ -111,6 +111,13 @@ class FileModule extends Module
         return $userDirPath . DIRECTORY_SEPARATOR;
     }
 
+    public function getClass($obj)
+    {
+        $className = $obj::className();
+
+        return $className;
+    }
+
     public function getShortClass($obj)
     {
         $className = get_class($obj);
@@ -155,7 +162,7 @@ class FileModule extends Module
         $file = new File();
 
         $file->name = $fileName;
-        $file->model = $this->getShortClass($owner);
+        $file->model = $this->getClass($owner);
         $file->itemId = $owner->id;
         $file->hash = $fileHash;
         $file->size = filesize($filePath);
