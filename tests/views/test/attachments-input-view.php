@@ -10,6 +10,6 @@ use tests\models\Comment;
 
 /** @var $model Comment */
 
-echo \nemmo\attachments\components\AttachmentsInput::widget([
+echo \file\components\AttachmentsInput::widget([
     'model' => $model
 ]);

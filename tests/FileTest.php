@@ -8,7 +8,7 @@
 
 namespace tests;
 
-use nemmo\attachments\models\File;
+use file\models\File;
 
 class FileTest extends TestCase
 {
@@ -19,6 +19,7 @@ class FileTest extends TestCase
         $this->assertFalse($file->validate());
         $this->assertArrayHasKey('name', $file->errors);
         $this->assertArrayHasKey('model', $file->errors);
+        $this->assertArrayHasKey('attribute', $file->errors);
         $this->assertArrayHasKey('itemId', $file->errors);
         $this->assertArrayHasKey('hash', $file->errors);
         $this->assertArrayHasKey('size', $file->errors);
