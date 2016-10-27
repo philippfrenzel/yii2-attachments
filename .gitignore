@@ -1,2 +1,6 @@
-vendor
-.idea
+# Created by .ignore support plugin (hsz.mobi)
+.idea/
+build/
+vendor/
+tests/uploads/
+tests/data/db.sqlite

@@ -4,6 +4,8 @@ namespace file;
 
 use file\models\File;
 use yii\base\Module;
+use yii\base\Exception;
+use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
 use yii\i18n\PhpMessageSource;
 use yii\web\Controller;
@@ -30,12 +32,11 @@ class FileModule extends Module
     {
         parent::init();
 
-        // custom initialization code goes here
-        if (!$this->storePath or !$this->tempPath) {
-            throw new \Exception('Setup storePath and tempPath in module properties');
+        if (empty($this->storePath) || empty($this->tempPath)) {
+            throw new Exception('Setup {storePath} and {tempPath} in module properties');
         }
 
-        $this->rules = array_replace(['maxFiles' => 3], $this->rules);
+        $this->rules = ArrayHelper::merge(['maxFiles' => 3], $this->rules);
         $this->defaultRoute = 'file';
         $this->registerTranslations();
     }

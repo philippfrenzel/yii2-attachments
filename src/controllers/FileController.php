@@ -59,13 +59,16 @@ class FileController extends Controller
             } else {
                 $path = $this->getModule()->getUserDirPath($attribute) . DIRECTORY_SEPARATOR . $model->file->name;
                 $model->file->saveAs($path);
+                $result['uploadedFiles'][] = $model->file->name;
             }
 
-            return json_encode($result);
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return $result;
         } else {
-            return json_encode([
-                'error' => $model->errors['file']
-            ]);
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return [
+                'error' => $model->getErrors('file')
+            ];
         }
     }
 
@@ -81,12 +84,10 @@ class FileController extends Controller
 
     public function actionDelete($id)
     {
-        $this->getModule()->detachFile($id);
-
-        if (\Yii::$app->request->isAjax) {
-            return json_encode([]);
+        if ($this->getModule()->detachFile($id)) {
+            return true;
         } else {
-            return $this->redirect(Url::previous());
+            return false;
         }
     }
 
@@ -106,11 +107,8 @@ class FileController extends Controller
             rmdir($userTempDir);
         }
 
-        if (\Yii::$app->request->isAjax) {
-            return json_encode([]);
-        } else {
-            return $this->redirect(Url::previous());
-        }
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return [];
     }
 
     protected function checkAccess()

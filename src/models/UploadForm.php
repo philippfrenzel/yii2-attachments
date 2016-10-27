@@ -4,6 +4,7 @@ namespace file\models;
 
 use file\FileModuleTrait;
 use yii\base\Model;
+use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
 
 class UploadForm extends Model
@@ -11,7 +12,7 @@ class UploadForm extends Model
     use FileModuleTrait;
 
     /**
-     * @var UploadedFile[] file attribute
+     * @var UploadedFile[]|UploadedFile file attribute
      */
     public $file;
 
@@ -21,7 +22,7 @@ class UploadForm extends Model
     public function rules()
     {
         return [
-            array_replace([['file'], 'file'], $this->getModule()->rules)
+            ArrayHelper::merge(['file', 'file'], $this->getModule()->rules)
         ];
     }
 }

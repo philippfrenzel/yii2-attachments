@@ -6,6 +6,7 @@ use file\behaviors\FileBehavior;
 use file\FileModuleTrait;
 use file\models\File;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\bootstrap\Widget;
 use yii\data\ArrayDataProvider;
 use yii\grid\GridView;
@@ -17,7 +18,7 @@ class AttachmentsTable extends Widget
 
     /** @var FileActiveRecord */
     public $model;
-    
+
     public $attribute = 'file';
 
     public $tableOptions = ['class' => 'table table-striped table-bordered table-condensed'];
@@ -29,15 +30,9 @@ class AttachmentsTable extends Widget
 
     public function run()
     {
-        if (!$this->model) {
-            return Html::tag('div',
-                Html::tag('b',
-                    Yii::t('yii', 'Error')) . ': ' . $this->getModule()->t('attachments', 'The model cannot be empty.'
-                ),
-                [
-                    'class' => 'alert alert-danger'
-                ]
-            );
+
+        if (empty($this->model)) {
+            throw new InvalidConfigException("Property {model} cannot be blank");
         }
 
         $hasFileBehavior = false;
@@ -47,17 +42,11 @@ class AttachmentsTable extends Widget
             }
         }
         if (!$hasFileBehavior) {
-            return Html::tag('div',
-                Html::tag('b',
-                    Yii::t('yii', 'Error')) . ': ' . $this->getModule()->t('attachments', 'The behavior FileBehavior has not been attached to the model.'
-                ),
-                [
-                    'class' => 'alert alert-danger'
-                ]
-            );
+            throw new InvalidConfigException("The behavior {FileBehavior} has not been attached to the model.");
         }
 
         Url::remember(Url::current());
+
         return GridView::widget([
             'dataProvider' => new ArrayDataProvider(['allModels' => $this->model->getFilesByAttributeName($this->attribute)]),
             'layout' => '{items}',
