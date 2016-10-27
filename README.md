@@ -1,8 +1,8 @@
-Yii2 attachments
-================
+##Yii2 attachments
+
 Extension for file uploading and attaching to the models
 
-This fork has been made by me and by company Elitmaster.
+This fork has the aim to implement some missing features such as multiple fields and simplifying installation
 
 Demo
 ----
@@ -16,14 +16,14 @@ Installation
 	Either run
 	
 	```
-	composer require badbreze/yii2-attachments "dev-master"
-	```
-	
-	or add
-	
-	```
-	"badbreze/yii2-attachments": "dev-master"
-	```
+	composer require badbreze/yii2-attachments
+    ```
+    
+    or add
+    
+    ```
+    "badbreze/yii2-attachments": ">=1.2.0"
+    ```
 	
 	to the require section of your `composer.json` file.
 
@@ -31,31 +31,31 @@ Installation
 	
 	```php
 	'aliases' => [
-            '@file' => dirname(__DIR__),
-        ],
-        'modules' => [
-            'file' => [
-                'class' => 'file\FileModule',
-                'webDir' => 'files',
-                'tempPath' => '@common/uploads/temp',
-                'storePath' => '@common/uploads/store',
-                'rules' => [ // Правила для FileValidator
-                    'maxFiles' => 20,
-                    'maxSize' => 1024 * 1024 * 20 // 20 MB
-                ],
-            ],
-        ],
+		'@file' => dirname(__DIR__),
+	],
+	'modules' => [
+		'file' => [
+			'class' => 'file\FileModule',
+			'webDir' => 'files',
+			'tempPath' => '@common/uploads/temp',
+			'storePath' => '@common/uploads/store',
+			'rules' => [ // ??????? ??? FileValidator
+				'maxFiles' => 20,
+				'maxSize' => 1024 * 1024 * 20 // 20 MB
+			],
+		],
+	],
 	```
 	
 	Also, add these lines to your console config:
 	
 	```php
 	'controllerMap' => [
-            'file' => [
-                'class' => 'yii\console\controllers\MigrateController',
-                'migrationPath' => '@file/migrations'
-            ],
-        ],
+		'file' => [
+			'class' => 'yii\console\controllers\MigrateController',
+			'migrationPath' => '@file/migrations'
+		],
+	],
     ```
 
 3. Apply migrations
@@ -67,59 +67,39 @@ Installation
 4. Attach behavior to your model (be sure that your model has "id" property)
 	
 	```php
+	use yii\helpers\ArrayHelper;
+	
+	/**
+	 * Declare file fields
+	 */
+	public $my_field_multiple_files;
+	public $my_field_single_file;
+
+	/**
+	 * Adding the file behavior
+	 */
 	public function behaviors()
 	{
-		return [
-			...
+		return ArrayHelper::merge(parent::behaviors(), [
 			'fileBehavior' => [
 				'class' => \file\behaviors\FileBehavior::className()
 			]
-			...
-		];
+		]);
 	}
+	
+	/**
+	 * Add the new fields to the file behavior
+	 */
+	public function rules()
+    {
+        return ArrayHelper::merge(parent::rules(), [
+			[['my_field_multiple_files', 'my_field_single_file'], 'file'],
+        ]);
+    }
 	```
 	
 5. Make sure that you have added `'enctype' => 'multipart/form-data'` to the ActiveForm options
 	
 6. Make sure that you specified `maxFiles` in module rules and `maxFileCount` on `AttachmentsInput` to the number that you want
 
-Usage
------
-
-1. In the `form.php` of your model add file input
-	
-	```php
-	<?= \file\components\AttachmentsInput::widget([
-		'id' => 'file-input', // Optional
-		'model' => $model,
-		'options' => [ // Options of the Kartik's FileInput widget
-			'multiple' => true, // If you want to allow multiple upload, default to false
-		],
-		'pluginOptions' => [ // Plugin options of the Kartik's FileInput widget 
-			'maxFileCount' => 10 // Client max files
-		]
-	]) ?>
-	```
-
-2. Use widget to show all attachments of the model in the `view.php`
-	
-	```php
-	<?= \file\components\AttachmentsTable::widget(['model' => $model]) ?>
-	```
-
-3. (Deprecated) Add onclick action to your submit button that uploads all files before submitting form
-	
-	```php
-	<?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', [
-		'class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary',
-		'onclick' => "$('#file-input').fileinput('upload');"
-	]) ?>
-	```
-	
-4. You can get all attached files by calling ```$model->files```, for example:
-
-	```php
-	foreach ($model->files as $file) {
-        echo $file->path;
-    }
-    ```
+7. Youre ready to use, [See How](http://www.divenock.com/projects/yii2-attachments/advanced-setup)

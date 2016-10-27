@@ -22,7 +22,7 @@ class AttachmentsInput extends Widget
 {
     use FileModuleTrait;
 
-    public $id = 'file-input';
+    public $id;
 
     public $attribute = 'file';
 

@@ -20,8 +20,6 @@ class FileBehavior extends Behavior
 {
     use FileModuleTrait;
 
-    var $attributes = ['file'];
-
     var $permissions = [];
 
     var $rules = [];
@@ -39,11 +37,54 @@ class FileBehavior extends Behavior
 
     public function saveUploads($event)
     {
-        if (!empty($this->attributes)) {
-            foreach ($this->attributes as $attribute) {
+        $attributes = $this->getFileAttributes();
+
+        if (!empty($attributes)) {
+            foreach ($attributes as $attribute) {
                 $this->saveAttributeUploads($attribute);
             }
         }
+    }
+
+    /**
+     * Return array of attributes which may contain f
+     * @return array
+     */
+    public function getFileAttributes() {
+        $validators = $this->owner->getValidators();
+
+        //Array of attributes
+        $fileAttributes = [];
+
+        //has file validator?
+        $fileValidator = $this->getFileValidator($validators);
+
+        if (!empty($fileValidator)) {
+            foreach ($fileValidator->attributes as $attribute) {
+                $fileAttributes[] = $attribute;
+            }
+        }
+
+        return $fileAttributes;
+    }
+
+    /**
+     * Check if owner model has file validator
+     * @param ArrayObject|\yii\validators\Validator[]
+     * @return \yii\validators\Validator|null
+     */
+    public function getFileValidator($validators) {
+        $attributeValidators = $this->owner->getActiveValidators($attribute);
+
+        foreach($validators as $validator) {
+            $classname = $validator::className();
+
+            if ($classname == 'yii\validators\FileValidator') {
+                return $validator;
+            }
+        }
+
+        return null;
     }
 
     protected function saveAttributeUploads($attribute)
