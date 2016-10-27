@@ -87,7 +87,6 @@ class AttachmentsInput extends Widget
                 uploadButtonClicked{$this->attribute} = true;
             });
             
-            
             fileInput{$this->attribute}.on('filebatchuploadsuccess', function(event, data, previewId, index) {
                 filesUploaded{$this->attribute} = true;
                 $('#{$this->id}').fileinput('unlock');
@@ -105,6 +104,7 @@ class AttachmentsInput extends Widget
             fileInput{$this->attribute}.on('filecleared', function(event) { // no files to upload
                 filesToUpload{$this->attribute} = 0;
             });
+            
             $('.formInput-{$this->getId()}').on('change', '.jsFileMain', function() {
                 var element = $(this);
                 var key = element.data('key');
@@ -164,51 +164,50 @@ JS;
         $urlGetMainFlag = Url::toRoute('/file/file/get-main');
 
         Yii::$app->view->registerJs(<<<JS
-$('.file-preview-thumbnails').sortable({
-    update: function(event, ui) {
-            var order = [];
-            $('.file-preview-thumbnails .kv-file-remove:visible').each(function(k, v) {
-                if($(v).data('key')) {
-                    order[k] = $(v).data('key');
-                }
+            $('.file-preview-thumbnails').sortable({
+                update: function(event, ui) {
+                        var order = [];
+                        $('.file-preview-thumbnails .kv-file-remove:visible').each(function(k, v) {
+                            if($(v).data('key')) {
+                                order[k] = $(v).data('key');
+                            }
+                        });
+            
+                        if(order.length) {
+                            $.ajax(
+                                '$urlSetOrder',
+                                {
+                                    method: "POST",
+                                    data: {
+                                        order: order
+                                    },
+                                    success: function(data) {
+                                    }
+                                }
+                            );
+                        }
+                    }
             });
-
-            if(order.length) {
+            
+            var loadMainFlag = function() {
                 $.ajax(
-                    '$urlSetOrder',
+                    '$urlGetMainFlag',
                     {
-                        method: "POST",
+                        method: "GET",
                         data: {
-                            order: order
+                            id: '{$this->model->id}',
+                            model: '{$this->model->formName()}'
                         },
-                        success: function(data) {
+                        success: function(id) {
+                            if(id !== 0) {
+                                $('.file-preview-frame .jsFileMain[data-key='+id+']').prop('checked', true);
+                            }
                         }
                     }
                 );
-            }
-        }
-});
-
-var loadMainFlag = function() {
-    $.ajax(
-        '$urlGetMainFlag',
-        {
-            method: "GET",
-            data: {
-                id: '{$this->model->id}',
-                model: '{$this->model->formName()}'
-            },
-            success: function(id) {
-                if(id !== 0) {
-                    $('.file-preview-frame .jsFileMain[data-key='+id+']').prop('checked', true);
-                }
-            }
-        }
-    );
-};
-
-loadMainFlag();
-
+            };
+            
+            loadMainFlag();
 JS
 );
 

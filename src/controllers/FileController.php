@@ -27,7 +27,7 @@ class FileController extends Controller
                     [
                         'actions' => ['download', 'delete'],
                         'allow' => true,
-                        'matchCallback' => function ($rule, $action){
+                        'matchCallback' => function ($rule, $action) {
                             return $this->checkAccess();
                         }
                     ],
@@ -79,7 +79,10 @@ class FileController extends Controller
 
         $filePath = $this->getModule()->getFilesDirPath($file->hash) . DIRECTORY_SEPARATOR . $file->hash . '.' . $file->type;
 
-        return \Yii::$app->response->sendFile($filePath, "$file->hash.$file->type");
+        if (file_exists($filePath))
+            return \Yii::$app->response->sendFile($filePath, "$file->hash.$file->type");
+        else
+            return false;
     }
 
     public function actionDelete($id)
@@ -126,8 +129,8 @@ class FileController extends Controller
         $behaviours = $model->behaviors();
         $fileBehaviour = $behaviours['fileBehavior'];
         $permission = $fileBehaviour['permissions'][$file->attribute];
-        if(!empty($permission)) {
-            if(!Yii::$app->user->can($permission)) {
+        if (!empty($permission)) {
+            if (!Yii::$app->user->can($permission)) {
                 $access = false;
             }
         }
@@ -142,15 +145,15 @@ class FileController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
         $file = File::findOne(Yii::$app->request->post('id', 0));
         $result = [];
-        if($file) {
+        if ($file) {
             $status = Yii::$app->request->post('value', 'false');
-            if($status === 'true') {
+            if ($status === 'true') {
                 File::updateAll(['is_main' => 0], ['model' => $file->model, 'itemId' => $file->itemId]);
                 $file->is_main = File::MAIN;
             } else {
                 $file->is_main = File::NOT_MAIN;
             }
-            if($file->save() && $file->is_main){
+            if ($file->save() && $file->is_main) {
                 $result = ['id' => $file->id];
             }
         }
@@ -166,7 +169,7 @@ class FileController extends Controller
             'itemId' => $id,
             'is_main' => File::MAIN,
         ])->one();
-        if($file) {
+        if ($file) {
             return $file->id;
         }
         return 0;
@@ -177,7 +180,7 @@ class FileController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
         $file = File::findOne(Yii::$app->request->post('id'));
         /** @var File $file */
-        if($file) {
+        if ($file) {
             $file->name = Yii::$app->request->post('name');
             $file->save();
         }
@@ -187,7 +190,7 @@ class FileController extends Controller
     public function actionSetOrder()
     {
         $order = array_reverse(Yii::$app->request->post('order', []));
-        foreach($order as $sort => $fileId) {
+        foreach ($order as $sort => $fileId) {
             $file = File::findOne($fileId);
             /** @var File $file */
             $file->sort = $sort + 1;
