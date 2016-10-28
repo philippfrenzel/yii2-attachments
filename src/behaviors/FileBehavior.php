@@ -165,6 +165,20 @@ class FileBehavior extends Behavior
     }
 
     /**
+     * @param string $attribute
+     * @param string $sort
+     * @return \yii\db\ActiveQuery[]
+     */
+    public function getSingleFileByAttributeName($attribute = 'file', $sort = 'id') {
+        $query = $this->getFilesByAttributeName($attribute, $sort);
+
+        //Single result mode
+        $query->multiple = false;
+
+        return $query;
+    }
+
+    /**
      * @return array|\yii\db\ActiveRecord[]
      */
     public function getGalleryFiles()
