@@ -66,7 +66,7 @@ class AttachmentsTableWithPreview extends Widget
 
         Url::remember(Url::current());
         return GridView::widget([
-            'dataProvider' => new ArrayDataProvider(['allModels' => $this->model->getFiles()]),
+            'dataProvider' => new ArrayDataProvider(['allModels' => $this->model->getFiles()->all()]),
             'layout' => '{items}',
             'tableOptions' => $this->tableOptions,
             'columns' => [

@@ -54,7 +54,7 @@ class AttachmentsInput extends Widget
             'uploadUrl' => Url::toRoute(['/file/file/upload', 'attribute'=>$this->attribute]),
             'initialPreview' => $this->model->isNewRecord ? [] : $this->model->getInitialPreviewByAttributeName($this->attribute),
             'initialPreviewConfig' => $this->model->isNewRecord ? [] : $this->model->getInitialPreviewConfigByAttributeName($this->attribute),
-            'uploadAsync' => false,
+            'uploadAsync' => true,
             'overwriteInitial' => false
         ]);
 
@@ -62,7 +62,7 @@ class AttachmentsInput extends Widget
             $this->options,
             [
                 'id' => $this->id,
-                //'multiple' => true
+                'multiple' => true
             ]
         );
 
@@ -151,6 +151,8 @@ JS;
 
     public function run()
     {
+        pr($this->options);
+        pr($this->pluginOptions);
         $fileInput = FileInput::widget(
             [
                 'model' => new UploadForm(),

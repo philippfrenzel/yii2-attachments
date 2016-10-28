@@ -87,6 +87,8 @@ class FileController extends Controller
 
     public function actionDelete($id)
     {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
         if ($this->getModule()->detachFile($id)) {
             return true;
         } else {
