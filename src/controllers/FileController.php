@@ -5,6 +5,7 @@ namespace file\controllers;
 use file\models\File;
 use file\models\UploadForm;
 use file\FileModuleTrait;
+use yii\db\ActiveRecord;
 use yii\helpers\FileHelper;
 use yii\helpers\Url;
 use yii\web\Controller;
@@ -40,12 +41,25 @@ class FileController extends Controller
     {
         $getData = Yii::$app->request->get();
         $attribute = $getData['attribute'];
+        $modelFrom = $getData['model'];
 
-        $model = new UploadForm();
+        /**
+         * @var $modelSpecific ActiveRecord
+         */
+        $modelSpecific = new $modelFrom;
+
+        $model = new UploadForm([
+            'modelSpecific' => $modelSpecific,
+            'attributeSpecific' => $attribute
+        ]);
+
         $model->file = UploadedFile::getInstances($model, 'file');
 
-        if ($model->rules()[0]['maxFiles'] == 1) {
-            $model->file = UploadedFile::getInstances($model, 'file')[0];
+        //File validator
+        $modelFileValidator = reset($modelSpecific->getActiveValidators($attribute));
+
+        if ($modelFileValidator->maxFiles == 1) {
+            $model->file = reset(UploadedFile::getInstances($model, 'file'));
         }
 
         if ($model->file && $model->validate()) {
@@ -138,7 +152,6 @@ class FileController extends Controller
         }
 
         return $access;
-
     }
 
     public function actionSetMain()

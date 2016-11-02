@@ -51,7 +51,7 @@ class AttachmentsInput extends Widget
         FileHelper::removeDirectory($this->getModule()->getUserDirPath($this->attribute)); // Delete all uploaded files in past
 
         $this->pluginOptions = array_replace($this->pluginOptions, [
-            'uploadUrl' => Url::toRoute(['/file/file/upload', 'attribute'=>$this->attribute]),
+            'uploadUrl' => Url::toRoute(['/file/file/upload', 'attribute' => $this->attribute, 'model' => get_class($this->model)]),
             'initialPreview' => $this->model->isNewRecord ? [] : $this->model->getInitialPreviewByAttributeName($this->attribute),
             'initialPreviewConfig' => $this->model->isNewRecord ? [] : $this->model->getInitialPreviewConfigByAttributeName($this->attribute),
             'uploadAsync' => true,
@@ -151,8 +151,6 @@ JS;
 
     public function run()
     {
-        pr($this->options);
-        pr($this->pluginOptions);
         $fileInput = FileInput::widget(
             [
                 'model' => new UploadForm(),

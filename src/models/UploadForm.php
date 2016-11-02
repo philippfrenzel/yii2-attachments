@@ -4,6 +4,7 @@ namespace file\models;
 
 use file\FileModuleTrait;
 use yii\base\Model;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
 
@@ -17,12 +18,28 @@ class UploadForm extends Model
     public $file;
 
     /**
-     * @return array the validation rules.
+     * @var ActiveRecord
      */
-    public function rules()
+    public $modelSpecific;
+
+    /**
+     * @var string
+     */
+    public $attributeSpecific;
+
+    /**
+     * @return bool
+     */
+    public function beforeValidate()
     {
-        return [
-            ArrayHelper::merge(['file', 'file'], $this->getModule()->rules)
-        ];
+        $attributeValidators = $this->modelSpecific->getActiveValidators($this->attributeSpecific);
+
+        foreach($attributeValidators as $validator) {
+            $validator->attributes = ['file'];
+            $this->validators->append($validator);
+            //$this->activeValidators[] = $validator;
+        }
+
+        return parent::beforeValidate();
     }
 }
