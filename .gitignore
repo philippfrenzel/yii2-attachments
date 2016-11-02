@@ -4,3 +4,4 @@ build/
 vendor/
 tests/uploads/
 tests/data/db.sqlite
+composer.lock

@@ -1,5 +1,9 @@
 ##Yii2 attachments
 
+[![Latest Stable Version](https://poser.pugx.org/badbreze/yii2-attachments/v/stable)](https://packagist.org/packages/badbreze/yii2-attachments)
+[![Total Downloads](https://poser.pugx.org/badbreze/yii2-attachments/downloads)](https://packagist.org/packages/badbreze/yii2-attachments)
+[![License](https://poser.pugx.org/badbreze/yii2-attachments/license)](https://packagist.org/packages/badbreze/yii2-attachments)
+
 Extension for file uploading and attaching to the models
 
 This fork has the aim to implement some missing features such as multiple fields and simplifying installation
@@ -39,10 +43,7 @@ Installation
 			'webDir' => 'files',
 			'tempPath' => '@common/uploads/temp',
 			'storePath' => '@common/uploads/store',
-			'rules' => [ // ??????? ??? FileValidator
-				'maxFiles' => 20,
-				'maxSize' => 1024 * 1024 * 20 // 20 MB
-			],
+			'tableName' => '{{%attachments}}' // Optional, default to 'attach_file'
 		],
 	],
 	```
@@ -61,7 +62,7 @@ Installation
 3. Apply migrations
 
 	```
-	php yii migrate/up --migrationPath=@vendor/badbreze/yii2-attachments/migrations
+	php yii migrate/up --migrationPath=@vendor/badbreze/yii2-attachments/src/migrations
 	```
 
 4. Attach behavior to your model (be sure that your model has "id" property)
