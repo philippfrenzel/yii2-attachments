@@ -117,7 +117,9 @@ class FileBehavior extends Behavior
 
     public function deleteUploads($event)
     {
-        foreach ($this->getFiles()->all() as $file) {
+        $files = $this->getFiles();
+
+        foreach ($files as $file) {
             $this->getModule()->detachFile($file->id);
         }
     }
@@ -125,9 +127,9 @@ class FileBehavior extends Behavior
     /**
      * @param string $andWhere
      * @return array|File[]
-     * @return \yii\db\ActiveQuery[]
+     * @return \yii\db\ActiveQuery
      */
-    public function getFiles($andWhere = '')
+    public function getFilesQuery($andWhere = '')
     {
         $fileQuery = File::find()
             ->where(
@@ -146,6 +148,15 @@ class FileBehavior extends Behavior
     }
 
     /**
+     * @param string $andWhere
+     * @return File[]
+     */
+    public function getFiles($andWhere = '')
+    {
+        return $this->getFilesQuery()->all();
+    }
+
+    /**
      * @param string $attribute
      * @param string $sort
      * @return \yii\db\ActiveQuery[]
@@ -160,6 +171,9 @@ class FileBehavior extends Behavior
             ]);
 
         $fileQuery->orderBy([$sort => SORT_ASC]);
+
+        //Single result mode
+        $fileQuery->multiple = true;
 
         return $fileQuery;
     }
@@ -213,7 +227,9 @@ class FileBehavior extends Behavior
             }
         }
 
-        foreach ($this->getFiles()->all() as $file) {
+        $files = $this->getFiles();
+
+        foreach ($files as $file) {
             if (substr($file->mime, 0, 5) === 'image') {
                 $initialPreview[] = Html::img($file->getUrl(), ['class' => 'file-preview-image']);
             } else {
@@ -245,7 +261,9 @@ class FileBehavior extends Behavior
             }
         }
 
-        foreach ($this->getFilesByAttributeName($attribute) as $file) {
+        $files = $this->getFilesByAttributeName($attribute)->all();
+
+        foreach ($files as $file) {
             if (substr($file->mime, 0, 5) === 'image') {
                 $initialPreview[] = Html::img($file->getUrl(), ['class' => 'file-preview-image']);
             } else {
@@ -278,7 +296,9 @@ class FileBehavior extends Behavior
             ];
         }
 
-        foreach ($this->getFiles()->all() as $index => $file) {
+        $files = $this->getFiles();
+
+        foreach ($files as $index => $file) {
             $initialPreviewConfig[] = [
                 'caption' => $file->name,
                 'size' => $file->size,
@@ -310,7 +330,9 @@ class FileBehavior extends Behavior
             ];
         }
 
-        foreach ($this->getFilesByAttributeName($attribute) as $index => $file) {
+        $files = $this->getFilesByAttributeName($attribute)->all();
+
+        foreach ($files as $index => $file) {
             $initialPreviewConfig[] = [
                 'caption' => "$file->name.$file->type",
                 'size' => $file->size,
