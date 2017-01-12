@@ -55,8 +55,11 @@ class FileController extends Controller
 
         $model->file = UploadedFile::getInstances($model, 'file');
 
+        //Attribute Validations
+        $attributeValidation = $modelSpecific->getActiveValidators($attribute);
+
         //File validator
-        $modelFileValidator = reset($modelSpecific->getActiveValidators($attribute));
+        $modelFileValidator = reset($attributeValidation);
 
         if ($modelFileValidator->maxFiles == 1) {
             $model->file = reset(UploadedFile::getInstances($model, 'file'));
