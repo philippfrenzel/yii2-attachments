@@ -74,8 +74,6 @@ class FileBehavior extends Behavior
      * @return \yii\validators\Validator|null
      */
     public function getFileValidator($validators) {
-        $attributeValidators = $this->owner->getActiveValidators($attribute);
-
         foreach($validators as $validator) {
             $classname = $validator::className();
 
