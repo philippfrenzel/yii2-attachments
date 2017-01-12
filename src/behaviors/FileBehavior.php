@@ -161,7 +161,7 @@ class FileBehavior extends Behavior
      * @param string $sort
      * @return \yii\db\ActiveQuery[]
      */
-    public function getFilesByAttributeName($attribute = 'file', $sort = 'id')
+    public function hasMultipleFiles($attribute = 'file', $sort = 'id')
     {
         $fileQuery = File::find()
             ->where([
@@ -179,9 +179,29 @@ class FileBehavior extends Behavior
     }
 
     /**
+     * DEPRECATED
+     */
+    public function getFilesByAttributeName($attribute = 'file', $sort = 'id')
+    {
+        return $this->hasMultipleFiles($attribute, $sort);
+    }
+
+    /**
      * @param string $attribute
      * @param string $sort
      * @return \yii\db\ActiveQuery[]
+     */
+    public function hasOneFile($attribute = 'file', $sort = 'id') {
+        $query = $this->hasMultipleFiles($attribute, $sort);
+
+        //Single result mode
+        $query->multiple = false;
+
+        return $query;
+    }
+
+    /**
+     * DEPRECATED
      */
     public function getSingleFileByAttributeName($attribute = 'file', $sort = 'id') {
         $query = $this->getFilesByAttributeName($attribute, $sort);
@@ -189,7 +209,7 @@ class FileBehavior extends Behavior
         //Single result mode
         $query->multiple = false;
 
-        return $query;
+        return $this->hasOneFile($attribute, $sort);
     }
 
     /**
