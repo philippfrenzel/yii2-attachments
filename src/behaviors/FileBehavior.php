@@ -10,6 +10,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\Application;
 use yii\web\UploadedFile;
+use file\models\UploadForm;
 
 /**
  * Class FileBehavior
@@ -27,6 +28,7 @@ class FileBehavior extends Behavior
     public function events()
     {
         $events = [
+            ActiveRecord::EVENT_BEFORE_VALIDATE => 'validateUploads',
             ActiveRecord::EVENT_AFTER_DELETE => 'deleteUploads',
             ActiveRecord::EVENT_AFTER_INSERT => 'saveUploads',
             ActiveRecord::EVENT_AFTER_UPDATE => 'saveUploads'
@@ -34,6 +36,84 @@ class FileBehavior extends Behavior
 
         return $events;
     }
+	/**
+	* Accrocchio da storia per il require
+	***/
+	public function validateUploads() {
+        $attributes = $this->getFileAttributes();
+
+        if (!empty($attributes)) {
+            foreach ($attributes as $attribute) {
+				/**
+				 * @var $modelSpecific ActiveRecord
+				 */
+				$modelSpecific = new $this->owner;
+
+				$model = new UploadForm([
+					'modelSpecific' => $modelSpecific,
+					'attributeSpecific' => $attribute
+				]);
+
+				$model->file = UploadedFile::getInstances($modelSpecific, $attribute);
+//pr($model,'MOSPE');
+//die;
+				//Attribute Validations
+				$attributeValidation = $modelSpecific->getActiveValidators($attribute);
+
+				//File validator
+				/*$modelFileValidator = reset($attributeValidation);
+
+				if ($modelFileValidator->maxFiles == 1) {
+					$fileInstance = UploadedFile::getInstances($modelSpecific, $attribute);
+
+					$model->file = reset($fileInstance);
+				}*/
+				//pr($model);
+				if ($model->file && $model->validate()) {
+					$result['uploadedFiles'] = [];
+					if (is_array($model->file)) {
+						foreach ($model->file as $file) {
+							$path = $this->getModule()->getUserDirPath($attribute) . DIRECTORY_SEPARATOR . $file->name;
+							$file->saveAs($path);
+							$result['uploadedFiles'][] = $file->name;
+						}
+
+                        $this->owner->{$attribute} = true;
+                    } else {
+						$path = $this->getModule()->getUserDirPath($attribute) . DIRECTORY_SEPARATOR . $model->file->name;
+						$model->file->saveAs($path);
+						$result['uploadedFiles'][] = $model->file->name;
+
+                        $this->owner->{$attribute} = true;
+                    }
+
+					//Yii::$app->response->format = Response::FORMAT_JSON;
+				} else {
+					//Yii::$app->response->format = Response::FORMAT_JSON;
+					pr( [
+						'error' => $model->getErrors(),
+						'data' => $model->toArray()
+					]);die;
+				}
+				/*
+				$oldItems = $this->owner->__get($attribute);
+			
+				$this->owner->{$attribute} = $oldItems;
+			
+				
+				$userTempDir = $this->getModule()->getUserDirPath($attribute);
+				
+				if (!empty($userTempDir)) {
+					$filesFound = FileHelper::findFiles($userTempDir);
+					
+					if (!empty($filesFound)) {
+						$this->owner->{$attribute} = true; 
+					}
+				}*/
+			}
+		}
+	}
+
 
     public function saveUploads($event)
     {

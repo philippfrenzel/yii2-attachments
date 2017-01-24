@@ -46,9 +46,9 @@ class AttachmentsTable extends Widget
         }
 
         Url::remember(Url::current());
-
+pr($this->model->hasMultipleFiles($this->attribute), '$this->model->hasMultipleFiles($this->attribute)');
         return GridView::widget([
-            'dataProvider' => new ArrayDataProvider(['allModels' => $this->model->getFilesByAttributeName($this->attribute)]),
+            'dataProvider' => new ArrayDataProvider(['allModels' => $this->model->hasMultipleFiles($this->attribute)]),
             'layout' => '{items}',
             'tableOptions' => $this->tableOptions,
             'columns' => [

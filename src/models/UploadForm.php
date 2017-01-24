@@ -29,7 +29,7 @@ class UploadForm extends Model
 
     /**
      * @return bool
-     */
+     *
     public function beforeValidate()
     {
         $attributeValidators = $this->modelSpecific->getActiveValidators($this->attributeSpecific);
@@ -41,5 +41,5 @@ class UploadForm extends Model
         }
 
         return parent::beforeValidate();
-    }
+    }*/
 }

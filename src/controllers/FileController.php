@@ -53,8 +53,8 @@ class FileController extends Controller
             'attributeSpecific' => $attribute
         ]);
 
-        $model->file = UploadedFile::getInstances($model, 'file');
-
+        $model->file = UploadedFile::getInstances($modelSpecific, $attribute);
+        //pr($model->file, 'filemodel');
         //Attribute Validations
         $attributeValidation = $modelSpecific->getActiveValidators($attribute);
 
@@ -62,7 +62,7 @@ class FileController extends Controller
         $modelFileValidator = reset($attributeValidation);
 
         if ($modelFileValidator->maxFiles == 1) {
-            $fileInstance = UploadedFile::getInstances($model, 'file');
+            $fileInstance = UploadedFile::getInstances($modelSpecific, $attribute);
 
             $model->file = reset($fileInstance);
         }
@@ -86,7 +86,8 @@ class FileController extends Controller
         } else {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
-                'error' => $model->getErrors('file')
+                'error' => $model->getErrors(),
+                'ioca' => $model->getErrors()
             ];
         }
     }
