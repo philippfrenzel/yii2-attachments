@@ -90,10 +90,10 @@ class FileBehavior extends Behavior
 					//Yii::$app->response->format = Response::FORMAT_JSON;
 				} else {
 					//Yii::$app->response->format = Response::FORMAT_JSON;
-					pr( [
+					return [
 						'error' => $model->getErrors(),
 						'data' => $model->toArray()
-					]);die;
+					];
 				}
 				/*
 				$oldItems = $this->owner->__get($attribute);

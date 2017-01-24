@@ -8,6 +8,7 @@ use file\models\File;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\bootstrap\Widget;
+use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -46,9 +47,9 @@ class AttachmentsTable extends Widget
         }
 
         Url::remember(Url::current());
-pr($this->model->hasMultipleFiles($this->attribute), '$this->model->hasMultipleFiles($this->attribute)');
+
         return GridView::widget([
-            'dataProvider' => new ArrayDataProvider(['allModels' => $this->model->hasMultipleFiles($this->attribute)]),
+            'dataProvider' => new ActiveDataProvider(['query' => $this->model->hasMultipleFiles($this->attribute)]),
             'layout' => '{items}',
             'tableOptions' => $this->tableOptions,
             'columns' => [
