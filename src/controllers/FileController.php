@@ -100,7 +100,7 @@ class FileController extends Controller
         $filePath = $this->getModule()->getFilesDirPath($file->hash) . DIRECTORY_SEPARATOR . $file->hash . '.' . $file->type;
 
         if (file_exists($filePath))
-            return \Yii::$app->response->sendFile($filePath, "$file->hash.$file->type");
+            return \Yii::$app->response->sendFile($filePath, "$file->name.$file->type");
         else
             return false;
     }
@@ -150,8 +150,10 @@ class FileController extends Controller
         $model = new $modelClass();
         $behaviours = $model->behaviors();
         $fileBehaviour = $behaviours['fileBehavior'];
-        $permission = $fileBehaviour['permissions'][$file->attribute];
-        if (!empty($permission)) {
+
+        if (!empty($fileBehaviour['permissions'])) {
+            $permission = $fileBehaviour['permissions'][$file->attribute];
+
             if (!Yii::$app->user->can($permission)) {
                 $access = false;
             }

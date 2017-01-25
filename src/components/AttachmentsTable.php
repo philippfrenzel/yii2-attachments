@@ -20,7 +20,7 @@ class AttachmentsTable extends Widget
     /** @var FileActiveRecord */
     public $model;
 
-    public $attribute = 'file';
+    public $attribute;
 
     public $tableOptions = ['class' => 'table table-striped table-bordered table-condensed'];
 
@@ -42,14 +42,36 @@ class AttachmentsTable extends Widget
                 $hasFileBehavior = true;
             }
         }
+
         if (!$hasFileBehavior) {
             throw new InvalidConfigException("The behavior {FileBehavior} has not been attached to the model.");
         }
 
         Url::remember(Url::current());
 
+        if(!empty($this->attribute)) {
+            return $this->drawWidget($this->attribute);
+        } else {
+            $widgets = null;
+            $attributes = $this->model->getFileAttributes();
+
+            if (!empty($attributes)) {
+                foreach ($attributes as $attribute) {
+                    $widgets .= $widgets .$this->drawWidget($attribute);
+                }
+            }
+
+            return $widgets;
+        }
+    }
+
+    public function drawWidget($attribute = null) {
+        if(!$attribute) {
+            return null;
+        }
+
         return GridView::widget([
-            'dataProvider' => new ActiveDataProvider(['query' => $this->model->hasMultipleFiles($this->attribute)]),
+            'dataProvider' => new ActiveDataProvider(['query' => $this->model->hasMultipleFiles($attribute)]),
             'layout' => '{items}',
             'tableOptions' => $this->tableOptions,
             'columns' => [
