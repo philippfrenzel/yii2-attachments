@@ -57,7 +57,7 @@ class AttachmentsTable extends Widget
 
             if (!empty($attributes)) {
                 foreach ($attributes as $attribute) {
-                    $widgets .= $widgets .$this->drawWidget($attribute);
+                    $widgets .= $this->drawWidget($attribute);
                 }
             }
 
