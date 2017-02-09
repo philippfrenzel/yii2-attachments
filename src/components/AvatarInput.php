@@ -19,7 +19,7 @@ use yii\jui\JuiAsset;
  * @package File\components
  * @property FileActiveRecord $model
  */
-class AttachmentsInput extends FileInput
+class AvatarInput extends FileInput
 {
     use FileModuleTrait;
 
@@ -53,7 +53,6 @@ class AttachmentsInput extends FileInput
                 'initialPreviewConfig' => $this->model->isNewRecord ? [] : $this->model->getInitialPreviewConfigByAttributeName($this->attribute),
                 'uploadAsync' => false,
                 //'otherActionButtons' => '<button class="download-file btn-xs btn-default" title="download" {dataKey}><i class="glyphicon glyphicon-download"></i></button>',
-                'overwriteInitial' => false,
                 'initialPreviewCount' => $initialCount,
                 'validateInitialCount' => true,
                 //'maxFileCount' => 5,
@@ -61,6 +60,23 @@ class AttachmentsInput extends FileInput
                 'showCaption' => true,
                 'showRemove' => false,
                 'showUpload' => false,
+
+
+
+
+                'overwriteInitial' => true,
+                'showClose' => false,
+                'showCaption' => false,
+                'browseLabel' => '',
+                'removeLabel' => '',
+                'browseIcon' => '<i class="glyphicon glyphicon-folder-open"></i>',
+                'removeIcon' => '<i class="glyphicon glyphicon-remove"></i>',
+                'removeTitle' => 'Cancel or reset changes',
+                'elErrorContainer' => '#kv-avatar-errors-1',
+                'msgErrorClass' => 'alert alert-block alert-danger',
+                'defaultPreviewContent' => '<img src="/uploads/default_avatar_male.jpg" alt="Your Avatar" style="width:160px">',
+                'layoutTemplates' => ['main2' => '{preview} {remove} {browse}'],
+                'allowedFileExtensions' => ["jpg", "jpeg", "png", "gif"]
             ]
         );
 
