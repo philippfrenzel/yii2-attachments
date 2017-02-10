@@ -2,7 +2,7 @@
 
 namespace file\components;
 
-use dosamigos\fileinput\FileInput;
+use badbreze\file\FileInput;
 use file\models\UploadForm;
 use file\FileModuleTrait;
 use yii\base\InvalidConfigException;
