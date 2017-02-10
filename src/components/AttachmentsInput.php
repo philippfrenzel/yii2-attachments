@@ -2,7 +2,7 @@
 
 namespace file\components;
 
-use badbreze\file\FileInput;
+use dosamigos\fileinput\FileInput;
 use file\models\UploadForm;
 use file\FileModuleTrait;
 use yii\base\InvalidConfigException;
@@ -24,13 +24,6 @@ class AttachmentsInput extends FileInput
     use FileModuleTrait;
 
     public $attribute;
-
-    /** @var FileActiveRecord $model */
-    public $model;
-
-    public $pluginOptions = [];
-
-    public $options = [];
 
     public function init()
     {
@@ -84,11 +77,11 @@ class AttachmentsInput extends FileInput
 
         $js = <<<JS
             var fileInput{$this->attribute} = $('#{$inputId}');
-            var files = fileInput{$this->attribute}.fileinput('getFilesCount');
+            var files{$this->attribute} = fileInput{$this->attribute}.fileinput('getFilesCount');
             var form{$this->attribute} = fileInput{$this->attribute}.closest('form');
             
             form{$this->attribute}.on('beforeValidate', function(event) {
-                if (files) {
+                if (files{$this->attribute}) {
                     form{$this->attribute}.yiiActiveForm('remove', '{$inputId}');
                 }
             });
