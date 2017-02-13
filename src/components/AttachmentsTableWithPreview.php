@@ -77,6 +77,15 @@ class AttachmentsTableWithPreview extends Widget
                     'class' => 'yii\grid\SerialColumn'
                 ],
                 [
+                    'label' => $this->getModule()->t('attachments', 'File Preview'),
+                    'format' => 'raw',
+                    'value' => function ($model) {
+                        return Html::img($model->getUrl('square_small'),[
+                            'class' => ' group' . $model->itemId
+                        ]);
+                    }
+                ],
+                [
                     'label' => $this->getModule()->t('attachments', 'File name'),
                     'format' => 'raw',
                     'value' => function ($model) {
