@@ -6,8 +6,12 @@ use file\models\File;
 use file\models\UploadForm;
 use file\FileModuleTrait;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
 use yii\helpers\Url;
+use yii\image\drivers\Image_GD;
+use yii\image\drivers\Image_Imagick;
+use yii\image\ImageDriver;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\web\UploadedFile;
@@ -92,17 +96,102 @@ class FileController extends Controller
         }
     }
 
-    public function actionDownload($id)
+    public function actionDownload($id, $hash, $size = 'original')
     {
         /** @var File $file */
-        $file = File::findOne(['id' => $id]);
+        $file = File::findOne(['id' => $id, 'hash' => $hash]);
 
         $filePath = $this->getModule()->getFilesDirPath($file->hash) . DIRECTORY_SEPARATOR . $file->hash . '.' . $file->type;
 
-        if (file_exists($filePath))
-            return \Yii::$app->response->sendFile($filePath, "$file->name.$file->type");
-        else
+        if (file_exists($filePath)) {
+            if ($size == 'original' || !in_array($file->type, ['jpg', 'jpeg', 'png', 'gif'])) {
+                return \Yii::$app->response->sendFile($filePath, "$file->name.$file->type");
+            } else {
+                $moduleConfig = Yii::$app->getModule('file')->config;
+                $crops = $moduleConfig['crops'] ?: [];
+
+                if (array_key_exists($size, $crops)) {
+                    return $this->getCroppedImage($file, $crops[$size]);
+                } else {
+                    throw new \Exception('Size not found - ' . $size);
+                }
+            }
+        } else
             return false;
+    }
+
+    public function getCroppedImage($file, $cropSettings)
+    {
+        $fileDir = $this->getModule()->getFilesDirPath($file->hash) . DIRECTORY_SEPARATOR;
+        $filePath = $fileDir . $file->hash . '.' . $file->type;
+        $cropPath = $fileDir . $file->hash . '.' . $cropSettings['width'] . '.' . $cropSettings['height'] . '.' . $file->type;
+
+        if (file_exists($cropPath)) {
+            //return \Yii::$app->response->sendFile($cropPath, "$file->name.$file->type");
+        }
+
+        //Crop and return
+        $cropper = new ImageDriver();
+
+        $configStack = [
+            'cr_width' => null,
+            'height' => null,
+            'master' => null,
+            'crop_width' => null,
+            'crop_height' => null,
+            'crop_width' => null,
+            'crop_height' => null,
+            'crop_offset_x' => null,
+            'crop_offset_y' => null,
+            'rotate_degrees' => null,
+            'rotate_degrees' => null,
+            'refrect_height' => null,
+            'refrect_opacity' => null,
+            'refrect_fade_in' => null,
+            'flip_direction' => null,
+            'flip_direction' => null,
+            'bg_color' => null,
+            'bg_color' => null,
+            'bg_opacity' => null,
+            'quality' => null
+        ];
+
+        $cropConfig = ArrayHelper::merge($configStack, $cropSettings);
+
+        /**
+         * Extract All settings
+         * Eg.
+         * $cr_width
+         * $cr_height
+         * $cr_quality
+         */
+        extract($cropConfig, EXTR_PREFIX_ALL, 'cr');
+
+        /**
+         * @var $image Image_GD | Image_Imagick
+         */
+        $image = $cropper->load($filePath);
+
+        $image->resize($cr_width, $cr_height, $cr_master);
+
+        if ($cr_crop_width && $cr_crop_height)
+            $image->crop($cr_crop_width, $cr_crop_height, $cr_crop_offset_x, $cr_crop_offset_y);
+
+        if ($cr_rotate_degrees)
+            $image->rotate($cr_rotate_degrees);
+
+        $image->reflection($cr_refrect_height, $cr_refrect_opacity, $cr_refrect_fade_in);
+
+        if ($cr_flip_direction)
+            $image->flip($cr_flip_direction);
+
+        if ($cr_bg_color)
+            $image->background($cr_bg_color, $cr_bg_opacity);
+
+        $image->save($cropPath, $cr_quality);
+
+        //Return the new image
+        return \Yii::$app->response->sendFile($cropPath, "$file->name.$file->type");
     }
 
     public function actionDelete($id)

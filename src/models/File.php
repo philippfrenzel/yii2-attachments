@@ -81,9 +81,9 @@ class File extends ActiveRecord
         ];
     }
 
-    public function getUrl()
+    public function getUrl($size = 'original')
     {
-        return Url::to(['/file/file/download', 'id' => $this->id]);
+        return Url::to(['/file/file/download', 'id' => $this->id, 'hash' => $this->hash, 'size' => $size]);
     }
 
     public function getWebUrl()

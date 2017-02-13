@@ -30,7 +30,8 @@ class FileBehavior extends Behavior
         $events = [
             ActiveRecord::EVENT_AFTER_DELETE => 'deleteUploads',
             ActiveRecord::EVENT_AFTER_INSERT => 'saveUploads',
-            //ActiveRecord::EVENT_BEFORE_VALIDATE => 'saveUploadsBeforeValidate'
+            ActiveRecord::EVENT_AFTER_UPDATE => 'saveUploads',
+            ActiveRecord::EVENT_BEFORE_VALIDATE => 'saveUploadsBeforeValidate'
         ];
 
         return $events;
@@ -124,7 +125,8 @@ class FileBehavior extends Behavior
                 throw new \Exception(\Yii::t('yii', 'File upload failed.'));
             }
         }
-        rmdir($userTempDir);
+
+        //rmdir($userTempDir);
 
 //        $debug = print_r($debugArr, true);
 //        file_put_contents('/tmp/files.txt', $debug);

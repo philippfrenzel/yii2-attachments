@@ -57,13 +57,15 @@ class AttachmentsInput extends FileInput
             ]
         );
 
+        $fileAttribute = $this->pluginOptions['maxFileCount'] != 1 ? '[]' : '';
+
         $this->options = array_replace(
             $this->options,
             [
                 //'id' => $this->id,
                 'model' => $this->model,
                 'attribute' => $this->attribute,
-                'name' => $this->attribute . '[]',
+                'name' => $this->attribute . $fileAttribute,
                 'multiple' => true
             ]
         );
