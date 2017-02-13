@@ -107,7 +107,10 @@ Thanks to [Yurknix](https://github.com/yurkinx/yii2-image) library for image man
 
 ### Basic Cropping
 
+`From version 1.2.5`
+
 There is 3 base crop sizes
+
  * Small `square_small` - 100x100 px
  * Medium `square_medium` - 500x500 px
  * Large `square_large` - 1000x1000 px
@@ -122,6 +125,8 @@ echo $cropUrl; // http://sample.com/file/file/download?id=$this->id&hash=$this->
 ```
 
 ### Custom Crops
+
+`From version 1.2.5`
 
 You can define your own crops in the module configuration, for example:
 
