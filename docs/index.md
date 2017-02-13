@@ -1,4 +1,5 @@
-##Basic Usage
+Basic Usage
+-----------
 
 In the form.php of your model add file input
 
@@ -38,8 +39,10 @@ foreach ($model->files as $file) {
 }
 ```
 
-##Advanced Usage
-#####Custom Getters by Attribute
+Advanced Usage
+--------------
+
+### Custom Getters by Attribute
 
 `From version 1.2.4`
 
@@ -76,7 +79,7 @@ public function getMyFieldSingleFile() {
 ?>
 ```
 
-#####Allow only images / Custom Validators
+### Allow only images / Custom Validators
 
 `From version 1.2.3`
 

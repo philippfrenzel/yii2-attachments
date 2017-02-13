@@ -1,4 +1,5 @@
-##Yii2 attachments
+Yii2 attachments
+----------------
 
 [![Latest Stable Version](https://poser.pugx.org/badbreze/yii2-attachments/v/stable)](https://packagist.org/packages/badbreze/yii2-attachments)
 [![Total Downloads](https://poser.pugx.org/badbreze/yii2-attachments/downloads)](https://packagist.org/packages/badbreze/yii2-attachments)
@@ -103,4 +104,4 @@ Installation
 	
 6. Make sure that you specified `maxFiles` in module rules and `maxFileCount` on `AttachmentsInput` to the number that you want
 
-7. Youre ready to use, [See How](http://www.divenock.com/projects/yii2-attachments/advanced-setup)
+7. Youre ready to use, [See How](https://badbreze.github.io/yii2-attachments/docs/)
