@@ -45,7 +45,7 @@ to the require section of your `composer.json` file.
         'webDir' => 'files',
         'tempPath' => '@common/uploads/temp',
         'storePath' => '@common/uploads/store',
-        'tableName' => '{{%attachments}}' // Optional, default to 'attach_file'
+        'tableName' => '{{%attach_file}}' // Optional, default to 'attach_file'
     ],
 ],
 ```

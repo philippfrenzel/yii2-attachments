@@ -134,7 +134,7 @@ class FileController extends Controller
         $cropper = new ImageDriver();
 
         $configStack = [
-            'cr_width' => null,
+            'width' => null,
             'height' => null,
             'master' => null,
             'crop_width' => null,
