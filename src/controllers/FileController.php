@@ -180,7 +180,8 @@ class FileController extends Controller
         if ($cr_rotate_degrees)
             $image->rotate($cr_rotate_degrees);
 
-        $image->reflection($cr_refrect_height, $cr_refrect_opacity, $cr_refrect_fade_in);
+        if ($cr_refrect_height)
+            $image->reflection($cr_refrect_height, $cr_refrect_opacity, $cr_refrect_fade_in);
 
         if ($cr_flip_direction)
             $image->flip($cr_flip_direction);
