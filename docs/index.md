@@ -34,6 +34,7 @@ Use widget to show all attachments of the model in the view.php
 You can get all attached files by calling $model->files, for example:
 
 ```php
+<?php
 foreach ($model->files as $file) {
     echo $file->path;
 }
@@ -86,6 +87,7 @@ public function getMyFieldSingleFile() {
 It is possible to validate the files with any validator like image validator you only need to add the right rules to the file fields, eg ad in your model:
 
 ```php
+<?php
 /**
  * Implement Image validation
  */
