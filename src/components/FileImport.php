@@ -1,10 +1,10 @@
 <?php
-namespace file\controllers;
+namespace file\components;
 
-use yii\base\Controller;
+use yii\base\Component;
 use yii\web\UploadedFile;
 
-class FileImportController extends Controller
+class FileImport extends Component
 {
     public function importFileForModel($modelSpecific, $attribute, $filePath)
     {
