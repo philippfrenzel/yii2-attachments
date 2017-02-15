@@ -2,10 +2,18 @@
 namespace file\components;
 
 use yii\base\Component;
+use yii\db\ActiveRecord;
 use yii\web\UploadedFile;
 
 class FileImport extends Component
 {
+    /**
+     * Import single file on selected Model->attribute
+     * @param $modelSpecific ActiveRecord The Record owner of the file
+     * @param $attribute string The attribute Name
+     * @param $filePath string Path on filesystem
+     * @return array File format or Array with error
+     */
     public function importFileForModel($modelSpecific, $attribute, $filePath)
     {
         $model = new UploadForm([
