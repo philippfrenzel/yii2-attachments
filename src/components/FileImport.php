@@ -4,6 +4,7 @@ namespace file\components;
 use yii\base\Component;
 use yii\db\ActiveRecord;
 use yii\web\UploadedFile;
+use file\models\UploadForm;
 
 class FileImport extends Component
 {
