@@ -5,6 +5,7 @@ use yii\base\Component;
 use yii\db\ActiveRecord;
 use yii\web\UploadedFile;
 use file\models\UploadForm;
+use yii\helpers\FileHelper;
 
 class FileImport extends Component
 {
@@ -31,7 +32,7 @@ class FileImport extends Component
         if ($model->file && $model->validate()) {
             $result['uploadedFiles'] = [];
 
-            $path = \Yii::$app->getModule('file')->getUserDirPath($attribute) . DIRECTORY_SEPARATOR . $model->file->name;
+            $path = $this->getUserDirPath($attribute) . DIRECTORY_SEPARATOR . $model->file->name;
             $model->file->saveAs($path);
             $result['uploadedFiles'][] = $model->file->name;
 
@@ -44,5 +45,15 @@ class FileImport extends Component
                 'ioca' => $model->getErrors()
             ];
         }
+    }
+
+    public function getUserDirPath($suffix = '')
+    {
+        $module = \Yii::$app->getModule('file');
+
+        $userDirPath = $module->getTempPath() . DIRECTORY_SEPARATOR . uniqid() . $suffix;
+        FileHelper::createDirectory($userDirPath);
+
+        return $userDirPath . DIRECTORY_SEPARATOR;
     }
 }
