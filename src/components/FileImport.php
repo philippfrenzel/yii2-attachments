@@ -21,31 +21,19 @@ class FileImport extends Component
     {
         $module = Yii::$app->getModule('file');
 
-        $model = new UploadForm([
-            'modelSpecific' => $modelSpecific,
-            'attributeSpecific' => $attribute
-        ]);
+        //Se non esiste salto
+        if(!file_exists($filePath)) {
+            return false;
+        }
 
-        $model->file = new UploadedFile();
-        $model->file->name = basename($filePath);
-        $model->file->tempName = $filePath;
-        $model->file->type = mime_content_type($filePath);
-        $model->file->size = filesize($filePath);
+        $file = [];
+        $file['name'] = basename($filePath);
+        $file['tempName'] = $filePath;
+        $file['type'] = mime_content_type($filePath);
+        $file['size'] = filesize($filePath);
 
-        if ($model->file && $model->validate()) {
-            $result['uploadedFiles'] = [];
-
-            $userTempDir = $this->getUserDirPath($attribute);
-            $path = $userTempDir . $model->file->name;
-            $model->file->saveAs($path);
-            $result['uploadedFiles'][] = $model->file->name;
-
-            foreach (FileHelper::findFiles($userTempDir) as $file) {
-                $debugArr[] = $file;
-                if (!$module->attachFile($file, $modelSpecific, $attribute)) {
-                    throw new \Exception(\Yii::t('yii', 'File upload failed.'));
-                }
-            }
+        if ($module->attachFile($filePath, $modelSpecific, $attribute)) {
+            $result['uploadedFiles'] = [$filePath];
 
             return $result;
         } else {
@@ -54,15 +42,5 @@ class FileImport extends Component
                 'ioca' => $model->getErrors()
             ];
         }
-    }
-
-    public function getUserDirPath($suffix = '')
-    {
-        $module = Yii::$app->getModule('file');
-
-        $userDirPath = $module->getTempPath() . DIRECTORY_SEPARATOR . uniqid() . $suffix;
-        FileHelper::createDirectory($userDirPath);
-
-        return $userDirPath . DIRECTORY_SEPARATOR;
     }
 }
