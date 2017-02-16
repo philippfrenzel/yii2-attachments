@@ -6,6 +6,7 @@ use yii\db\ActiveRecord;
 use yii\web\UploadedFile;
 use file\models\UploadForm;
 use yii\helpers\FileHelper;
+use Yii;
 
 class FileImport extends Component
 {
@@ -36,10 +37,8 @@ class FileImport extends Component
             $model->file->saveAs($path);
             $result['uploadedFiles'][] = $model->file->name;
 
-            Yii::$app->response->format = Response::FORMAT_JSON;
             return $result;
         } else {
-            Yii::$app->response->format = Response::FORMAT_JSON;
             return [
                 'error' => $model->getErrors(),
                 'ioca' => $model->getErrors()
@@ -49,7 +48,7 @@ class FileImport extends Component
 
     public function getUserDirPath($suffix = '')
     {
-        $module = \Yii::$app->getModule('file');
+        $module = Yii::$app->getModule('file');
 
         $userDirPath = $module->getTempPath() . DIRECTORY_SEPARATOR . uniqid() . $suffix;
         FileHelper::createDirectory($userDirPath);
