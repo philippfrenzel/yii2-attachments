@@ -31,7 +31,7 @@ class FileImport extends Component
         if ($model->file && $model->validate()) {
             $result['uploadedFiles'] = [];
 
-            $path = $this->getModule()->getUserDirPath($attribute) . DIRECTORY_SEPARATOR . $model->file->name;
+            $path = \Yii::$app->getModule('file')->getUserDirPath($attribute) . DIRECTORY_SEPARATOR . $model->file->name;
             $model->file->saveAs($path);
             $result['uploadedFiles'][] = $model->file->name;
 
