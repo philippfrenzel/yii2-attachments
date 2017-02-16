@@ -19,6 +19,8 @@ class FileImport extends Component
      */
     public function importFileForModel($modelSpecific, $attribute, $filePath)
     {
+        $module = Yii::$app->getModule('file');
+
         $model = new UploadForm([
             'modelSpecific' => $modelSpecific,
             'attributeSpecific' => $attribute
@@ -33,9 +35,17 @@ class FileImport extends Component
         if ($model->file && $model->validate()) {
             $result['uploadedFiles'] = [];
 
-            $path = $this->getUserDirPath($attribute) . DIRECTORY_SEPARATOR . $model->file->name;
+            $userTempDir = $this->getUserDirPath($attribute);
+            $path = $userTempDir . $model->file->name;
             $model->file->saveAs($path);
             $result['uploadedFiles'][] = $model->file->name;
+
+            foreach (FileHelper::findFiles($userTempDir) as $file) {
+                $debugArr[] = $file;
+                if (!$module->attachFile($file, $modelSpecific, $attribute)) {
+                    throw new \Exception(\Yii::t('yii', 'File upload failed.'));
+                }
+            }
 
             return $result;
         } else {
