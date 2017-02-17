@@ -180,8 +180,7 @@ class FileController extends Controller
         if ($cr_rotate_degrees)
             $image->rotate($cr_rotate_degrees);
 
-        if ($cr_refrect_height)
-            $image->reflection($cr_refrect_height, $cr_refrect_opacity, $cr_refrect_fade_in);
+        $image->reflection($cr_refrect_height, $cr_refrect_opacity, $cr_refrect_fade_in);
 
         if ($cr_flip_direction)
             $image->flip($cr_flip_direction);
@@ -200,9 +199,17 @@ class FileController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         if ($this->getModule()->detachFile($id)) {
-            return true;
+            if(Yii::$app->request->isAjax){
+                return true;
+            } else {
+                return $this->goBack((!empty(Yii::$app->request->referrer) ? Yii::$app->request->referrer : null));
+            }
         } else {
-            return false;
+            if(Yii::$app->request->isAjax){
+                return false;
+            } else {
+                return $this->goBack((!empty(Yii::$app->request->referrer) ? Yii::$app->request->referrer : null));
+            }
         }
     }
 

@@ -58,9 +58,9 @@ class FileBehavior extends Behavior
      * @return bool|void
      */
     public function saveUploadsBeforeValidate($event) {
-        if($this->owner->isNewRecord) {
-            return true;
-        }
+//        if($this->owner->isNewRecord) {
+//            return true;
+//        }
 
         return $this->saveUploads($event);
     }
@@ -112,12 +112,18 @@ class FileBehavior extends Behavior
         $files = UploadedFile::getInstancesByName($attribute);
         if (!empty($files)) {
             foreach ($files as $file) {
+                $this->owner->{$attribute} = $file;
                 if (!$file->saveAs($this->getModule()->getUserDirPath($attribute) . $file->name)) {
-                    throw new \Exception(\Yii::t('yii', 'File upload failed.'));
+                    //throw new \Exception(\Yii::t('yii', 'File upload failed.'));
+                    //return FALSE;
+                    continue;
                 }
             }
         }
 
+        if($this->owner->isNewRecord){
+            return TRUE;
+        }
         $userTempDir = $this->getModule()->getUserDirPath($attribute);
         foreach (FileHelper::findFiles($userTempDir) as $file) {
             $debugArr[] = $file;
