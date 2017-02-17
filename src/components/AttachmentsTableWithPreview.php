@@ -7,7 +7,7 @@ use file\behaviors\FileBehavior;
 use file\FileModuleTrait;
 use Yii;
 use yii\bootstrap\Widget;
-use yii\data\ArrayDataProvider;
+use yii\data\ActiveDataProvider;
 use yii\db\ActiveRecord;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -93,7 +93,7 @@ class AttachmentsTableWithPreview extends Widget
         $files = $this->model->hasMultipleFiles($attribute);
 
         return GridView::widget([
-                'dataProvider' => new ArrayDataProvider(['allModels' => $files]),
+                'dataProvider' => new ActiveDataProvider(['query' => $files]),
                 'layout' => '{items}',
                 'tableOptions' => $this->tableOptions,
                 'columns' => [
