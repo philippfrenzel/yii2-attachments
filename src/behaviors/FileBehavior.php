@@ -31,7 +31,7 @@ class FileBehavior extends Behavior
             ActiveRecord::EVENT_AFTER_DELETE => 'deleteUploads',
             ActiveRecord::EVENT_AFTER_INSERT => 'saveUploads',
             ActiveRecord::EVENT_AFTER_UPDATE => 'saveUploads',
-            ActiveRecord::EVENT_BEFORE_VALIDATE => 'saveUploadsBeforeValidate'
+            ActiveRecord::EVENT_BEFORE_VALIDATE => 'evalAttributes'
         ];
 
         return $events;
@@ -57,30 +57,41 @@ class FileBehavior extends Behavior
      * @param $event
      * @return bool|void
      */
-    public function saveUploadsBeforeValidate($event) {
-//        if($this->owner->isNewRecord) {
-//            return true;
-//        }
+    public function evalAttributes($event)
+    {
+        $attributes = $this->getFileAttributes();
 
-        return $this->saveUploads($event);
+        if (!empty($attributes)) {
+            foreach ($attributes as $attribute) {
+                $files = UploadedFile::getInstancesByName($attribute);
+                if (!empty($files)) {
+                    foreach ($files as $file) {
+                        $this->owner->{$attribute} = $file;
+                    }
+                }
+            }
+        }
     }
 
     /**
      * Return array of attributes which may contain f
      * @return array
      */
-    public function getFileAttributes() {
+    public function getFileAttributes()
+    {
         $validators = $this->owner->getValidators();
 
         //Array of attributes
         $fileAttributes = [];
 
         //has file validator?
-        $fileValidator = $this->getFileValidator($validators);
+        $fileValidators = $this->getFileValidator($validators);
 
-        if (!empty($fileValidator)) {
-            foreach ($fileValidator->attributes as $attribute) {
-                $fileAttributes[] = $attribute;
+        foreach($fileValidators as $fileValidator) {
+            if (!empty($fileValidator)) {
+                foreach ($fileValidator->attributes as $attribute) {
+                    $fileAttributes[] = $attribute;
+                }
             }
         }
 
@@ -92,16 +103,19 @@ class FileBehavior extends Behavior
      * @param ArrayObject|\yii\validators\Validator[]
      * @return \yii\validators\Validator|null
      */
-    public function getFileValidator($validators) {
-        foreach($validators as $validator) {
+    public function getFileValidator($validators)
+    {
+        $fileValidators = [];
+
+        foreach ($validators as $validator) {
             $classname = $validator::className();
 
             if ($classname == 'yii\validators\FileValidator') {
-                return $validator;
+                $fileValidators[] = $validator;
             }
         }
 
-        return null;
+        return $fileValidators;
     }
 
     protected function saveAttributeUploads($attribute)
@@ -121,7 +135,7 @@ class FileBehavior extends Behavior
             }
         }
 
-        if($this->owner->isNewRecord){
+        if ($this->owner->isNewRecord) {
             return TRUE;
         }
         $userTempDir = $this->getModule()->getUserDirPath($attribute);
@@ -215,7 +229,8 @@ class FileBehavior extends Behavior
      * @param string $sort
      * @return \yii\db\ActiveQuery[]
      */
-    public function hasOneFile($attribute = 'file', $sort = 'id') {
+    public function hasOneFile($attribute = 'file', $sort = 'id')
+    {
         $query = $this->hasMultipleFiles($attribute, $sort);
 
         //Single result mode
@@ -227,7 +242,8 @@ class FileBehavior extends Behavior
     /**
      * DEPRECATED
      */
-    public function getSingleFileByAttributeName($attribute = 'file', $sort = 'id') {
+    public function getSingleFileByAttributeName($attribute = 'file', $sort = 'id')
+    {
         $query = $this->getFilesByAttributeName($attribute, $sort);
 
         //Single result mode
