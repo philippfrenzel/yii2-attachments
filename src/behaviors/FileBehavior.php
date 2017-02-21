@@ -65,8 +65,14 @@ class FileBehavior extends Behavior
             foreach ($attributes as $attribute) {
                 $files = UploadedFile::getInstancesByName($attribute);
                 if (!empty($files)) {
-                    foreach ($files as $file) {
-                        $this->owner->{$attribute} = $file;
+                    if(count($files) > 1) {
+                        $this->owner->{$attribute} = [];
+
+                        foreach ($files as $file) {
+                            $this->owner->{$attribute}[] = $file;
+                        }
+                    } else {
+                        $this->owner->{$attribute} = reset($files);
                     }
                 }
             }
