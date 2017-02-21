@@ -121,15 +121,12 @@ class FileBehavior extends Behavior
     protected function saveAttributeUploads($attribute)
     {
 
-        $debugArr = [];
+        $attached = [];
 
         $files = UploadedFile::getInstancesByName($attribute);
         if (!empty($files)) {
             foreach ($files as $file) {
-                $this->owner->{$attribute} = $file;
                 if (!$file->saveAs($this->getModule()->getUserDirPath($attribute) . $file->name)) {
-                    //throw new \Exception(\Yii::t('yii', 'File upload failed.'));
-                    //return FALSE;
                     continue;
                 }
             }
@@ -138,13 +135,18 @@ class FileBehavior extends Behavior
         if ($this->owner->isNewRecord) {
             return TRUE;
         }
+
         $userTempDir = $this->getModule()->getUserDirPath($attribute);
+
         foreach (FileHelper::findFiles($userTempDir) as $file) {
-            $debugArr[] = $file;
-            if (!$this->getModule()->attachFile($file, $this->owner, $attribute)) {
+            if ($result = $this->getModule()->attachFile($file, $this->owner, $attribute)) {
+                $attached[] = $result;
+            } else {
                 throw new \Exception(\Yii::t('yii', 'File upload failed.'));
             }
         }
+
+        $this->owner->{$attribute} = $attached;
 
         //rmdir($userTempDir);
 
