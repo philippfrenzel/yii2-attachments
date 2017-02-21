@@ -126,10 +126,8 @@ class FileBehavior extends Behavior
 
     protected function saveAttributeUploads($attribute)
     {
-
-        $attached = [];
-
         $files = UploadedFile::getInstancesByName($attribute);
+
         if (!empty($files)) {
             foreach ($files as $file) {
                 if (!$file->saveAs($this->getModule()->getUserDirPath($attribute) . $file->name)) {
@@ -145,14 +143,17 @@ class FileBehavior extends Behavior
         $userTempDir = $this->getModule()->getUserDirPath($attribute);
 
         foreach (FileHelper::findFiles($userTempDir) as $file) {
-            if ($result = $this->getModule()->attachFile($file, $this->owner, $attribute)) {
-                $attached[] = $result;
-            } else {
+            if (!$this->getModule()->attachFile($file, $this->owner, $attribute)) {
                 throw new \Exception(\Yii::t('yii', 'File upload failed.'));
             }
         }
 
-        $this->owner->{$attribute} = $attached;
+        //Getting query
+        $getter = 'get' . ucfirst($attribute);
+        $activeQuery = $this->owner->{$getter}();
+
+        //Eval attribute
+        $this->owner->{$attribute} = $activeQuery->multiple ? $activeQuery->all() : $activeQuery->one();
 
         //rmdir($userTempDir);
 
