@@ -108,3 +108,19 @@ public function rules()
 6. Make sure that you specified `maxFiles` in module rules and `maxFileCount` on `AttachmentsInput` to the number that you want
 
 7. Youre ready to use, [See How](https://badbreze.github.io/yii2-attachments/docs/)
+
+# Issue
+
+Hi, didn't find another way to contact you for a question. I setup all configs as you described - but still I'm ending up with the following error:
+
+htmlspecialchars() expects parameter 1 to be string, object given
+
+in Krajee Input Base Widget:
+
+if ($this->hasModel()) {
+            $input = 'active' . ucfirst($type);
+            return $list ?
+                Html::$input($this->model, $this->attribute, $this->data, $this->options) :
+                Html::$input($this->model, $this->attribute, $this->options);
+        }
+        $input = $type;
