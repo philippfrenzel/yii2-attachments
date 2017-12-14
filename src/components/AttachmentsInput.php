@@ -101,6 +101,7 @@ JS;
         $fileinput = FileInput::widget([
             'model' => new UploadForm(),
             'attribute' => 'file[]',
+            'language' => isset($this->options['language'])?$this->options['language']:'ru',
             'options' => $this->options,
             'pluginOptions' => $this->pluginOptions
         ]);
