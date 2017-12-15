@@ -87,11 +87,14 @@ class Module extends \yii\base\Module
         return $path;
     }
 
-    public function getUserDirPath()
+    public function getUserDirPath($model = null)
     {
         \Yii::$app->session->open();
 
-        $userDirPath = $this->getTempPath() . DIRECTORY_SEPARATOR . \Yii::$app->session->id;
+        if($model)
+            $model = DIRECTORY_SEPARATOR . $model;
+
+        $userDirPath = $this->getTempPath() . DIRECTORY_SEPARATOR . \Yii::$app->session->id . $model;
         FileHelper::createDirectory($userDirPath);
 
         \Yii::$app->session->close();
