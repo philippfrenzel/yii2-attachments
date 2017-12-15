@@ -15,6 +15,17 @@ class FileController extends Controller
 {
     use ModuleTrait;
 
+    public $model = null;
+
+    public function init()
+    {
+        parent::init();
+
+        if(Yii::$app->request->getBodyParam('model'))
+            $this->model = Yii::$app->request->getBodyParam('model');
+
+    }
+
     public function actionUpload()
     {
         $model = new UploadForm();
@@ -28,12 +39,12 @@ class FileController extends Controller
             $result['uploadedFiles'] = [];
             if (is_array($model->file)) {
                 foreach ($model->file as $file) {
-                    $path = $this->getModule()->getUserDirPath() . DIRECTORY_SEPARATOR . $file->name;
+                    $path = $this->getModule()->getUserDirPath($this->model) . DIRECTORY_SEPARATOR . $file->name;
                     $file->saveAs($path);
                     $result['uploadedFiles'][] = $file->name;
                 }
             } else {
-                $path = $this->getModule()->getUserDirPath() . DIRECTORY_SEPARATOR . $model->file->name;
+                $path = $this->getModule()->getUserDirPath($this->model) . DIRECTORY_SEPARATOR . $model->file->name;
                 $model->file->saveAs($path);
                 $result['uploadedFiles'][] = $model->file->name;
             }
@@ -66,14 +77,14 @@ class FileController extends Controller
 
     public function actionDownloadTemp($filename)
     {
-        $filePath = $this->getModule()->getUserDirPath() . DIRECTORY_SEPARATOR . $filename;
+        $filePath = $this->getModule()->getUserDirPath($this->model) . DIRECTORY_SEPARATOR . $filename;
 
         return Yii::$app->response->sendFile($filePath, $filename);
     }
 
     public function actionDeleteTemp($filename)
     {
-        $userTempDir = $this->getModule()->getUserDirPath();
+        $userTempDir = $this->getModule()->getUserDirPath($this->model);
         $filePath = $userTempDir . DIRECTORY_SEPARATOR . $filename;
         unlink($filePath);
         if (!sizeof(FileHelper::findFiles($userTempDir))) {
