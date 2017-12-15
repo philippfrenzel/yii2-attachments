@@ -79,4 +79,9 @@ class File extends ActiveRecord
     {
         return $this->getModule()->getFilesDirPath($this->hash) . DIRECTORY_SEPARATOR . $this->hash . '.' . $this->type;
     }
+
+    public function getWebPath()
+    {
+        return Yii::getAlias('@storageUrl').'/source/'.$this->getModule()->getSubDirs($this->hash) . DIRECTORY_SEPARATOR . $this->hash . '.' . $this->type;
+    }
 }
