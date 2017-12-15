@@ -21,6 +21,8 @@ class FileBehavior extends Behavior
 {
     use ModuleTrait;
 
+    public $modelName;
+
     public function events()
     {
         return [
@@ -30,19 +32,25 @@ class FileBehavior extends Behavior
         ];
     }
 
+    public function attach($owner)
+    {
+        parent::attach($owner);
+        $this->modelName = strtolower((new \ReflectionClass($this->owner))->getShortName());
+    }
+
     public function saveUploads($event)
     {
         $files = UploadedFile::getInstancesByName('UploadForm[file]');
 
         if (!empty($files)) {
             foreach ($files as $file) {
-                if (!$file->saveAs($this->getModule()->getUserDirPath() . $file->name)) {
+                if (!$file->saveAs($this->getModule()->getUserDirPath($this->modelName) . $file->name)) {
                     throw new \Exception(\Yii::t('yii', 'File upload failed.'));
                 }
             }
         }
 
-        $userTempDir = $this->getModule()->getUserDirPath();
+        $userTempDir = $this->getModule()->getUserDirPath($this->modelName);
         foreach (FileHelper::findFiles($userTempDir) as $file) {
             if (!$this->getModule()->attachFile($file, $this->owner)) {
                 throw new \Exception(\Yii::t('yii', 'File upload failed.'));
@@ -78,7 +86,7 @@ class FileBehavior extends Behavior
     {
         $initialPreview = [];
 
-        $userTempDir = $this->getModule()->getUserDirPath();
+        $userTempDir = $this->getModule()->getUserDirPath($this->modelName);
         foreach (FileHelper::findFiles($userTempDir) as $file) {
             if (substr(FileHelper::getMimeType($file), 0, 5) === 'image') {
                 $initialPreview[] = Html::img(['/attachments/file/download-temp', 'filename' => basename($file)], ['class' => 'file-preview-image']);
@@ -110,7 +118,7 @@ class FileBehavior extends Behavior
     {
         $initialPreviewConfig = [];
 
-        $userTempDir = $this->getModule()->getUserDirPath();
+        $userTempDir = $this->getModule()->getUserDirPath($this->modelName);
         foreach (FileHelper::findFiles($userTempDir) as $file) {
             $filename = basename($file);
             $initialPreviewConfig[] = [
