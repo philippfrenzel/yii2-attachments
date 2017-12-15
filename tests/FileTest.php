@@ -8,7 +8,7 @@
 
 namespace tests;
 
-use nemmo\attachments\models\File;
+use ztdan4ik\attachments\models\File;
 
 class FileTest extends TestCase
 {

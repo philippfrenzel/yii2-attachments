@@ -1,10 +1,10 @@
 <?php
 
-namespace nemmo\attachments\components;
+namespace ztdan4ik\attachments\components;
 
 use kartik\file\FileInput;
-use nemmo\attachments\models\UploadForm;
-use nemmo\attachments\ModuleTrait;
+use ztdan4ik\attachments\models\UploadForm;
+use ztdan4ik\attachments\ModuleTrait;
 use yii\base\InvalidConfigException;
 use yii\bootstrap\Widget;
 use yii\helpers\FileHelper;

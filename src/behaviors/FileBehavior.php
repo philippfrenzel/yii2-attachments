@@ -6,10 +6,10 @@
  * Time: 12:24
  */
 
-namespace nemmo\attachments\behaviors;
+namespace ztdan4ik\attachments\behaviors;
 
-use nemmo\attachments\models\File;
-use nemmo\attachments\ModuleTrait;
+use ztdan4ik\attachments\models\File;
+use ztdan4ik\attachments\ModuleTrait;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 use yii\helpers\FileHelper;

@@ -1,6 +1,6 @@
 <?php
 
-namespace nemmo\attachments;
+namespace ztdan4ik\attachments;
 
 /**
  * Created by PhpStorm.

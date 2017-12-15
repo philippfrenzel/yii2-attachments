@@ -1,8 +1,8 @@
 <?php
 
-namespace nemmo\attachments\models;
+namespace ztdan4ik\attachments\models;
 
-use nemmo\attachments\ModuleTrait;
+use ztdan4ik\attachments\ModuleTrait;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;

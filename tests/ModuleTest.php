@@ -8,7 +8,7 @@
 
 namespace tests;
 
-use nemmo\attachments\Module;
+use ztdan4ik\attachments\Module;
 use Yii;
 
 class ModuleTest extends TestCase

@@ -48,7 +48,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             'vendorPath' => Yii::getAlias('@tests/../vendor'),
             'modules' => [
                 'attachments' => [
-                    'class' => \nemmo\attachments\Module::className(),
+                    'class' => \ztdan4ik\attachments\Module::className(),
                 ]
             ],
             'components' => [

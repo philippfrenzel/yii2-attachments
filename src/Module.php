@@ -1,8 +1,8 @@
 <?php
 
-namespace nemmo\attachments;
+namespace ztdan4ik\attachments;
 
-use nemmo\attachments\models\File;
+use ztdan4ik\attachments\models\File;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
@@ -10,7 +10,7 @@ use yii\i18n\PhpMessageSource;
 
 class Module extends \yii\base\Module
 {
-    public $controllerNamespace = 'nemmo\attachments\controllers';
+    public $controllerNamespace = 'ztdan4ik\attachments\controllers';
 
     public $storePath = '@app/uploads/store';
 
